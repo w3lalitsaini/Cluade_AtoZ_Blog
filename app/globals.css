@@ -1,0 +1,189 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 250 249 246;
+    --foreground: 28 25 23;
+    --primary: 249 115 22;
+    --primary-foreground: 255 255 255;
+    --secondary: 245 245 244;
+    --secondary-foreground: 28 25 23;
+    --muted: 245 245 244;
+    --muted-foreground: 120 113 108;
+    --border: 231 229 228;
+    --card: 255 255 255;
+    --card-foreground: 28 25 23;
+  }
+
+  .dark {
+    --background: 10 9 8;
+    --foreground: 250 249 246;
+    --primary: 249 115 22;
+    --primary-foreground: 255 255 255;
+    --secondary: 28 25 23;
+    --secondary-foreground: 250 249 246;
+    --muted: 28 25 23;
+    --muted-foreground: 120 113 108;
+    --border: 41 37 36;
+    --card: 21 19 17;
+    --card-foreground: 250 249 246;
+  }
+
+  * {
+    @apply border-stone-200 dark:border-stone-800;
+  }
+
+  body {
+    @apply bg-[rgb(var(--background))] text-[rgb(var(--foreground))];
+    font-family: "DM Sans", system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Playfair Display", Georgia, serif;
+  }
+
+  .article-body {
+    font-family: "Source Serif 4", Georgia, serif;
+    line-height: 1.85;
+    font-size: 1.125rem;
+  }
+
+  .article-body h2 {
+    @apply text-2xl font-bold mt-10 mb-4 text-ink-900 dark:text-ink-100;
+    font-family: "Playfair Display", Georgia, serif;
+  }
+
+  .article-body h3 {
+    @apply text-xl font-semibold mt-8 mb-3 text-ink-800 dark:text-ink-200;
+    font-family: "Playfair Display", Georgia, serif;
+  }
+
+  .article-body p {
+    @apply mb-6;
+  }
+
+  .article-body blockquote {
+    @apply border-l-4 border-brand-500 pl-6 py-2 my-8 italic text-ink-700 dark:text-ink-300 bg-brand-50 dark:bg-brand-950 rounded-r-lg;
+  }
+
+  .article-body a {
+    @apply text-brand-600 dark:text-brand-400 underline underline-offset-2 hover:text-brand-800 dark:hover:text-brand-200 transition-colors;
+  }
+
+  .article-body ul, .article-body ol {
+    @apply ml-6 mb-6 space-y-2;
+  }
+
+  .article-body li {
+    @apply list-disc marker:text-brand-500;
+  }
+
+  .article-body ol li {
+    @apply list-decimal;
+  }
+
+  .article-body img {
+    @apply rounded-xl my-8 w-full object-cover shadow-lg;
+  }
+
+  .article-body code {
+    @apply bg-ink-100 dark:bg-ink-800 px-1.5 py-0.5 rounded text-sm font-mono;
+  }
+
+  .article-body pre {
+    @apply bg-ink-900 dark:bg-ink-950 text-ink-100 p-6 rounded-xl my-8 overflow-x-auto;
+  }
+}
+
+@layer components {
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+
+  .article-card {
+    @apply bg-white dark:bg-ink-900 rounded-xl border border-ink-100 dark:border-ink-800 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5;
+  }
+
+  .card-image {
+    @apply w-full h-full object-cover group-hover:scale-105 transition-transform duration-500;
+  }
+
+  .section-title {
+    @apply font-heading text-2xl font-bold text-ink-900 dark:text-ink-50 border-l-4 border-brand-500 pl-3;
+  }
+
+  .font-headline {
+    font-family: "Playfair Display", Georgia, serif;
+  }
+
+  .font-body {
+    font-family: "Source Serif 4", Georgia, serif;
+  }
+
+  .btn-primary {
+    @apply bg-brand-500 hover:bg-brand-600 text-white font-sans font-semibold px-5 py-2.5 rounded-lg transition-all duration-200 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 font-sans font-medium px-5 py-2.5 rounded-lg transition-all duration-200;
+  }
+
+  .badge {
+    @apply text-xs font-sans font-semibold uppercase tracking-wider px-3 py-1 rounded-full;
+  }
+
+  .badge-primary {
+    @apply badge bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300;
+  }
+
+  .badge-breaking {
+    @apply badge bg-red-600 text-white animate-pulse;
+  }
+
+  .section-heading {
+    @apply font-heading text-2xl font-bold text-ink-900 dark:text-ink-50 border-l-4 border-brand-500 pl-4;
+  }
+
+  .nav-link {
+    @apply font-sans text-sm font-medium text-ink-700 dark:text-ink-300 hover:text-brand-500 dark:hover:text-brand-400 transition-colors duration-150;
+  }
+
+  .input-field {
+    @apply w-full bg-white dark:bg-ink-900 border border-stone-300 dark:border-stone-700 rounded-lg px-4 py-2.5 text-sm text-ink-900 dark:text-ink-100 placeholder-ink-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all;
+  }
+}
+
+.breaking-ticker {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.breaking-ticker-inner {
+  display: inline-block;
+  animation: breaking-scroll 40s linear infinite;
+}
+
+@keyframes breaking-scroll {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-100%); }
+}
+
+.tiptap-editor .ProseMirror {
+  outline: none;
+  min-height: 400px;
+  padding: 1rem;
+}
+
+.tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.scrollbar-thin::-webkit-scrollbar { width: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #f97316; border-radius: 4px; }
