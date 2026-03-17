@@ -112,6 +112,7 @@ export default async function LatestArticlesPage() {
               <button className="bg-brand-600 hover:bg-brand-500 text-white font-bold px-8 py-3 rounded-xl transition-all whitespace-nowrap">
                 Subscribe Free
               </button>
+            </form>
           </div>
         </div>
       )}
