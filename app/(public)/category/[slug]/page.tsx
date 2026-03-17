@@ -234,6 +234,13 @@ export default async function CategoryPage({ params }: Props) {
           </aside>
         </div>
       </div>
+
+      {/* Footer Ad */}
+      <div className="bg-ink-50 dark:bg-ink-900 py-6 border-t border-ink-200 dark:border-ink-800">
+        <div className="max-w-screen-xl mx-auto px-4">
+          <AdUnit position="footer" className="max-w-[970px] mx-auto" />
+        </div>
+      </div>
     </>
   );
 }

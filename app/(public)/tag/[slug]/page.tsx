@@ -55,7 +55,8 @@ export default async function TagPage({ params }: Props) {
   const { tag, posts } = data;
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 py-8">
+    <>
+      <div className="max-w-screen-xl mx-auto px-4 py-8">
       {/* Tag Header */}
       <div className="mb-10 text-center">
         <nav className="flex justify-center items-center gap-2 text-xs font-sans text-ink-500 mb-6">
@@ -129,7 +130,15 @@ export default async function TagPage({ params }: Props) {
             <AdUnit position="sidebar" />
           </div>
         </aside>
+        </div>
       </div>
-    </div>
+
+      {/* Footer Ad */}
+      <div className="bg-ink-50 dark:bg-ink-900 py-6 border-t border-ink-200 dark:border-ink-800 mt-12">
+        <div className="max-w-screen-xl mx-auto px-4">
+          <AdUnit position="footer" className="max-w-[970px] mx-auto" />
+        </div>
+      </div>
+    </>
   );
 }
