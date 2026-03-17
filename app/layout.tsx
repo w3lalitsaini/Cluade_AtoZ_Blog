@@ -12,7 +12,6 @@ import { Toaster } from "react-hot-toast";
 import { auth } from "@/lib/auth";
 import { SessionProvider } from "next-auth/react";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
-import GoogleAdSense from "@/components/GoogleAdSense";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const playfair = Playfair_Display({
@@ -59,12 +58,18 @@ export default async function RootLayout({
   const session = await auth();
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-${process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID}`}
+          crossOrigin="anonymous"
+        ></script>
+      </head>
       <body
         className={`${inter.variable} ${playfair.variable} ${sourceSerif.variable} ${dmSans.variable} ${jetbrainsMono.variable} font-sans antialiased text-ink-900 dark:text-ink-50 bg-white dark:bg-black`}
       >
         <SessionProvider session={session}>
           <GoogleAnalytics />
-          <GoogleAdSense />
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
