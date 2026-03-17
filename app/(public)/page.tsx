@@ -20,6 +20,7 @@ export const metadata: Metadata = genMeta({
   description:
     "Breaking news, in-depth analysis, and stories across technology, business, politics, health, and more.",
   url: siteUrl,
+  image: "/images/favicon.svg",
 });
 
 async function getHomePageData() {

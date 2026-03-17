@@ -48,6 +48,10 @@ export const metadata: Metadata = {
     site: "@atozblog",
   },
   robots: { index: true, follow: true },
+  icons: {
+    icon: "/images/favicon.svg",
+    apple: "/images/favicon.svg",
+  },
 };
 
 export default async function RootLayout({
