@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Briefcase, Zap, Globe, Heart } from "lucide-react";
 import { config } from "@/lib/config";
+import AdUnit from "@/components/ads/AdUnit";
 
 export const metadata: Metadata = {
   title: "Careers",
@@ -29,6 +30,7 @@ export default function CareersPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12 md:py-24">
+      <AdUnit position="header" className="mb-12" />
       <div className="text-center max-w-3xl mx-auto mb-20">
         <h1 className="font-heading text-4xl md:text-6xl font-black text-ink-950 dark:text-white mb-6">
           Build the <span className="text-brand-500">Future</span> of News.
@@ -78,6 +80,10 @@ export default function CareersPage() {
         ))}
       </div>
 
+      <div className="my-16">
+        <AdUnit position="in-article" />
+      </div>
+
       <div className="max-w-4xl mx-auto">
         <h2 className="font-heading text-3xl font-bold text-ink-900 dark:text-white mb-10 text-center">
           Open Positions
@@ -105,6 +111,10 @@ export default function CareersPage() {
           ))}
         </div>
 
+        <div className="my-16">
+          <AdUnit position="between-paragraphs" />
+        </div>
+
         <div className="mt-20 p-12 rounded-3xl bg-brand-50 dark:bg-brand-900/10 border border-brand-100 dark:border-brand-900/30 text-center">
           <h3 className="font-heading text-2xl font-bold text-ink-900 dark:text-white mb-4">
             Don&apos;t see a fit?
@@ -121,6 +131,7 @@ export default function CareersPage() {
           </a>
         </div>
       </div>
+      <AdUnit position="footer" className="mt-20" />
     </div>
   );
 }

@@ -104,7 +104,7 @@ export default async function HomePage() {
   return (
     <>
       {/* Breaking News */}
-      <BreakingNewsBanner items={breakingNews} />
+      <BreakingNewsBanner posts={breakingNews} />
 
       {/* Header Ad */}
       <div className="bg-white dark:bg-ink-950 py-3">
@@ -113,7 +113,7 @@ export default async function HomePage() {
         </div>
       </div>
 
-      <div className="max-w-screen-xl mx-auto px-4 py-6">
+      <main className="max-w-screen-xl mx-auto px-4 py-8 md:py-12">
         {/* Featured Stories Grid */}
         <section className="mb-10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -338,11 +338,11 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
-      </div>
+      </main>
 
       {/* Footer Ad */}
-      <div className="bg-ink-50 dark:bg-ink-900 py-6 border-t border-ink-200 dark:border-ink-800">
-        <div className="max-w-screen-xl mx-auto px-4">
+      <div className="bg-stone-50 dark:bg-ink-900 py-10 border-t border-stone-200 dark:border-ink-800">
+        <div className="max-w-screen-xl mx-auto px-4 text-center">
           <AdUnit position="footer" className="max-w-[970px] mx-auto" />
         </div>
       </div>

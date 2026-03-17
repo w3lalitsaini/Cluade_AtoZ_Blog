@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { config } from "@/lib/config";
+import AdUnit from "@/components/ads/AdUnit";
 
 export const metadata: Metadata = {
   title: "DMCA Policy",
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
 export default function DMCAPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 md:py-20">
+      <AdUnit position="header" className="mb-12" />
       <h1 className="font-heading text-4xl md:text-5xl font-black text-ink-950 dark:text-white mb-8">
         DMCA Notice & Procedure
       </h1>
@@ -20,6 +22,8 @@ export default function DMCAPage() {
           Act (DMCA), we will respond promptly to claims of copyright
           infringement that are reported to our Designated Copyright Agent.
         </p>
+
+        <AdUnit position="in-article" className="my-12" />
 
         <h2>1. Reporting Infringement</h2>
         <p>
@@ -55,6 +59,8 @@ export default function DMCAPage() {
           </li>
         </ul>
 
+        <AdUnit position="between-paragraphs" className="my-12" />
+
         <h2>2. Designated DMCA Agent</h2>
         <p>All DMCA notices should be sent to:</p>
         <div className="p-8 bg-stone-50 dark:bg-ink-900 rounded-2xl border border-stone-100 dark:border-stone-800">
@@ -84,6 +90,7 @@ export default function DMCAPage() {
           infringing may be subject to liability.
         </p>
       </div>
+      <AdUnit position="footer" className="mt-20" />
     </div>
   );
 }

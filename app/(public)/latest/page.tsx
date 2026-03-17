@@ -73,6 +73,10 @@ export default async function LatestArticlesPage() {
             <div className="mt-12">
               <AdUnit position="in-article" />
             </div>
+
+            <div className="mt-8">
+              <AdUnit position="between-paragraphs" />
+            </div>
           </main>
 
           <aside className="lg:col-span-1 space-y-6">

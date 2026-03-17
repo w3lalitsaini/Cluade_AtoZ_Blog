@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 import type { Metadata } from "next";
 import { config } from "@/lib/config";
+import AdUnit from "@/components/ads/AdUnit";
 
 export const metadata: Metadata = {
   title: "Cookie Policy",
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export default function CookiePolicyPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 md:py-20">
+      <AdUnit position="header" className="mb-12" />
       <h1 className="font-heading text-4xl md:text-5xl font-black text-ink-950 dark:text-white mb-8">
         Cookie Policy
       </h1>
@@ -19,6 +21,8 @@ export default function CookiePolicyPage() {
           This is the Cookie Policy for <strong>{config.siteName}</strong>,
           accessible from {config.siteUrl}.
         </p>
+
+        <AdUnit position="in-article" className="my-12" />
 
         <h2>What Are Cookies</h2>
         <p>
@@ -36,6 +40,8 @@ export default function CookiePolicyPage() {
           cookies without completely disabling the functionality and features
           they add to this site.
         </p>
+
+        <AdUnit position="between-paragraphs" className="my-12" />
 
         <h2>The Cookies We Set</h2>
         <ul>
@@ -84,6 +90,7 @@ export default function CookiePolicyPage() {
           <li>Email: {config.contact.email}</li>
         </ul>
       </div>
+      <AdUnit position="footer" className="mt-20" />
     </div>
   );
 }

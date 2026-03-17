@@ -148,12 +148,20 @@ export default async function SearchPage({ searchParams }: Props) {
             </div>
           )}
 
-          <div className="mt-12 text-center">
+          <div className="mt-12">
+            <AdUnit position="in-article" />
+          </div>
+
+          <div className="mt-8 text-center">
             {posts.length > 0 && (
               <button className="px-8 py-3 bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-700 text-ink-700 dark:text-ink-300 text-sm font-sans font-700 rounded-xl hover:border-brand-500 hover:text-brand-500 transition-all">
                 Load More Results
               </button>
             )}
+          </div>
+
+          <div className="mt-12">
+            <AdUnit position="between-paragraphs" />
           </div>
         </main>
 

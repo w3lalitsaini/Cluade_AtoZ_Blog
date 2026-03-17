@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { config } from "@/lib/config";
 import toast from "react-hot-toast";
+import AdUnit from "@/components/ads/AdUnit";
 
 export default function AdvertisePage() {
   const [formData, setFormData] = useState({
@@ -53,6 +54,7 @@ export default function AdvertisePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12 md:py-24">
+      <AdUnit position="header" className="mb-12" />
       <div className="text-center max-w-3xl mx-auto mb-20">
         <h1 className="font-heading text-4xl md:text-6xl font-black text-ink-950 dark:text-white mb-6">
           Reach Your <span className="text-brand-500">Audience</span>.
@@ -62,6 +64,10 @@ export default function AdvertisePage() {
           engaged community of tech enthusiasts, professionals, and
           decision-makers.
         </p>
+      </div>
+
+      <div className="my-16">
+        <AdUnit position="in-article" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-24">
@@ -81,6 +87,10 @@ export default function AdvertisePage() {
             </p>
           </div>
         ))}
+      </div>
+
+      <div className="my-16">
+        <AdUnit position="between-paragraphs" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -171,6 +181,7 @@ export default function AdvertisePage() {
           </div>
         </div>
       </div>
+      <AdUnit position="footer" className="mt-20" />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Download, FileText, Image as ImageIcon, Mail } from "lucide-react";
 import { config } from "@/lib/config";
+import AdUnit from "@/components/ads/AdUnit";
 
 export const metadata: Metadata = {
   title: "Press & Media Kit",
@@ -17,6 +18,7 @@ export default function PressPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12 md:py-24">
+      <AdUnit position="header" className="mb-12" />
       <div className="flex flex-col lg:flex-row gap-16">
         {/* Left Content */}
         <div className="flex-1">
@@ -29,6 +31,10 @@ export default function PressPage() {
             media relations team.
           </p>
 
+          <div className="my-12">
+            <AdUnit position="in-article" />
+          </div>
+
           <div className="prose prose-lg dark:prose-invert max-w-none mb-12 prose-headings:font-heading prose-headings:font-bold">
             <h2>About {config.siteName}</h2>
             <p>
@@ -38,6 +44,10 @@ export default function PressPage() {
               trusted voice for millions of readers worldwide who seek context
               beyond the headlines.
             </p>
+          </div>
+
+          <div className="my-12">
+            <AdUnit position="between-paragraphs" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -140,6 +150,7 @@ export default function PressPage() {
           </div>
         </div>
       </div>
+      <AdUnit position="footer" className="mt-20" />
     </div>
   );
 }

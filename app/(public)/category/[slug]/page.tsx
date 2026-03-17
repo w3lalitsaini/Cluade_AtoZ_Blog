@@ -155,6 +155,8 @@ export default async function CategoryPage({ params }: Props) {
               </section>
             )}
 
+            <AdUnit position="between-paragraphs" className="mt-8" />
+
             {posts.length === 0 && (
               <div className="text-center py-20 bg-ink-50 dark:bg-ink-900 rounded-2xl">
                 <p className="text-ink-500 font-sans">

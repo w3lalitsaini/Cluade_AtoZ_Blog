@@ -169,6 +169,9 @@ export default async function AuthorPage({ params }: Props) {
             </div>
 
             <AdUnit position="sidebar" />
+            <div className="mt-8">
+              <AdUnit position="sidebar" />
+            </div>
           </div>
         </aside>
 
@@ -213,6 +216,9 @@ export default async function AuthorPage({ params }: Props) {
           </section>
 
           <AdUnit position="in-article" />
+          <div className="mt-8">
+            <AdUnit position="between-paragraphs" />
+          </div>
         </main>
         </div>
       </div>

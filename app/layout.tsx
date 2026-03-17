@@ -12,6 +12,7 @@ import { Toaster } from "react-hot-toast";
 import { auth } from "@/lib/auth";
 import { SessionProvider } from "next-auth/react";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import { StickyBottomAd } from "@/components/ads/AdUnit";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const playfair = Playfair_Display({
@@ -94,6 +95,7 @@ export default async function RootLayout({
             />
           </ThemeProvider>
         </SessionProvider>
+        <StickyBottomAd />
       </body>
     </html>
   );

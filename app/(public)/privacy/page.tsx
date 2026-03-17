@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { config } from "@/lib/config";
+import AdUnit from "@/components/ads/AdUnit";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -15,6 +16,7 @@ export default function PrivacyPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 md:py-20">
+      <AdUnit position="header" className="mb-12" />
       <h1 className="font-heading text-4xl md:text-5xl font-black text-ink-950 dark:text-white mb-4">
         Privacy Policy
       </h1>
@@ -29,6 +31,8 @@ export default function PrivacyPage() {
           visitors. This Privacy Policy document contains types of information
           that is collected and recorded by {config.siteName} and how we use it.
         </p>
+
+        <AdUnit position="in-article" className="my-12" />
 
         <h2>1. Information We Collect</h2>
         <p>
@@ -70,6 +74,8 @@ export default function PrivacyPage() {
           <li>Send you emails and newsletters.</li>
           <li>Find and prevent fraud.</li>
         </ul>
+
+        <AdUnit position="between-paragraphs" className="my-12" />
 
         <h2>3. Cookies and Web Beacons</h2>
         <p>
@@ -116,6 +122,7 @@ export default function PrivacyPage() {
           <strong>{config.contact.email}</strong>.
         </p>
       </div>
+      <AdUnit position="footer" className="mt-20" />
     </div>
   );
 }

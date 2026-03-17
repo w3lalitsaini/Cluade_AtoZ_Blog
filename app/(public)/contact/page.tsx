@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
 import { config } from "@/lib/config";
 import toast from "react-hot-toast";
+import AdUnit from "@/components/ads/AdUnit";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -50,6 +51,7 @@ export default function ContactPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12 md:py-20">
+      <AdUnit position="header" className="mb-12" />
       <div className="text-center mb-16">
         <h1 className="font-heading text-4xl md:text-5xl font-black text-ink-950 dark:text-white mb-6">
           Get in Touch
@@ -240,6 +242,13 @@ export default function ContactPage() {
           </form>
         </div>
       </div>
+      <div className="mt-16">
+        <AdUnit position="in-article" />
+      </div>
+      <div className="mt-12">
+        <AdUnit position="between-paragraphs" />
+      </div>
+      <AdUnit position="footer" className="mt-20" />
     </div>
   );
 }

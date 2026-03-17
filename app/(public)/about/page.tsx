@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { config } from "@/lib/config";
 
+import AdUnit from "@/components/ads/AdUnit";
+
 export const metadata: Metadata = {
   title: "About Us",
   description: `Learn more about ${config.siteName}, your trusted source for news and insights.`,
@@ -10,6 +12,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 md:py-20">
+      <AdUnit position="header" className="mb-12" />
       <div className="text-center mb-16">
         <h1 className="font-heading text-4xl md:text-5xl font-black text-ink-950 dark:text-white mb-6">
           Our Story
@@ -28,6 +31,8 @@ export default function AboutPage() {
           an era of rapid-fire headlines, the value of context, nuance, and
           integrity has never been higher.
         </p>
+
+        <AdUnit position="in-article" className="my-12" />
 
         <h2>Our Mission</h2>
         <p>
@@ -59,6 +64,8 @@ export default function AboutPage() {
           </div>
         </div>
 
+        <AdUnit position="between-paragraphs" className="my-12" />
+
         <h2>What We Cover</h2>
         <ul>
           <li>
@@ -84,6 +91,7 @@ export default function AboutPage() {
           continue to explore the frontiers of news and insights.
         </p>
       </div>
+      <AdUnit position="footer" className="mt-20" />
     </div>
   );
 }

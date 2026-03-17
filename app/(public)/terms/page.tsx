@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { config } from "@/lib/config";
+import AdUnit from "@/components/ads/AdUnit";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -15,6 +16,7 @@ export default function TermsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 md:py-20">
+      <AdUnit position="header" className="mb-12" />
       <h1 className="font-heading text-4xl md:text-5xl font-black text-ink-950 dark:text-white mb-4">
         Terms of Service
       </h1>
@@ -34,6 +36,8 @@ export default function TermsPage() {
           conditions. Do not continue to use {config.siteName} if you do not
           agree to take all of the terms and conditions stated on this page.
         </p>
+
+        <AdUnit position="in-article" className="my-12" />
 
         <h2>1. Intellectual Property Rights</h2>
         <p>
@@ -64,6 +68,8 @@ export default function TermsPage() {
           remove any Comments which can be considered inappropriate, offensive
           or causes breach of these Terms and Conditions.
         </p>
+
+        <AdUnit position="between-paragraphs" className="my-12" />
 
         <h2>3. Content Liability</h2>
         <p>
@@ -110,6 +116,7 @@ export default function TermsPage() {
           at {config.contact.email}.
         </p>
       </div>
+      <AdUnit position="footer" className="mt-20" />
     </div>
   );
 }
