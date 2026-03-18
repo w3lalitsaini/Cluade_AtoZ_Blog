@@ -79,8 +79,8 @@ export async function GET(req: NextRequest) {
       { $group: { _id: "$folder", count: { $sum: 1 } } }
     ]);
     
-    const finalFolders = folderList.map(f => {
-      const match = counts.find(c => c._id === f.name);
+    const finalFolders = (folderList as { name: string; count: number }[]).map(f => {
+      const match = (counts as { _id: string; count: number }[]).find(c => c._id === f.name);
       return { ...f, count: match?.count || 0 };
     });
 
