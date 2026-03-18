@@ -1,48 +1,28 @@
-import OpenAI from "openai";
+import { generateText } from "./services/aiService";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+/**
+ * Free AI Service Wrapper for TypeScript
+ * Implements the same interface as the legacy OpenAI helper.
+ */
 
 export async function generateBlogTitles(
   topic: string,
   count = 5
 ): Promise<string[]> {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are an expert blog title generator. Return only a JSON array of title strings.",
-      },
-      {
-        role: "user",
-        content: `Generate ${count} compelling, SEO-optimized blog titles for the topic: "${topic}". Return as JSON array.`,
-      },
-    ],
-    response_format: { type: "json_object" },
-  });
-
-  const content = response.choices[0].message.content || '{"titles":[]}';
-  const parsed = JSON.parse(content);
-  return parsed.titles || [];
+  const prompt = `Generate ${count} compelling, SEO-optimized blog titles for the topic: "${topic}". Return only a JSON array of title strings: {"titles": ["title1", "title2"]}`;
+  const raw = await generateText(prompt);
+  try {
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : raw);
+    return parsed.titles || [];
+  } catch {
+    return [topic];
+  }
 }
 
 export async function generateOutline(title: string): Promise<string> {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a professional content strategist. Create detailed blog outlines.",
-      },
-      {
-        role: "user",
-        content: `Create a detailed outline for a blog post titled: "${title}". Include H2 and H3 headings with brief descriptions.`,
-      },
-    ],
-  });
-  return response.choices[0].message.content || "";
+  const prompt = `Create a detailed outline for a blog post titled: "${title}". Include H2 and H3 headings.`;
+  return await generateText(prompt);
 }
 
 export async function generateArticle(
@@ -50,90 +30,46 @@ export async function generateArticle(
   outline: string,
   tone = "professional"
 ): Promise<string> {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content: `You are an expert blog writer. Write in HTML format suitable for a rich text editor. Use <h2>, <h3>, <p>, <ul>, <li>, <blockquote> tags. Tone: ${tone}.`,
-      },
-      {
-        role: "user",
-        content: `Write a comprehensive, SEO-optimized blog article for:
+  const prompt = `Write a comprehensive, SEO-optimized blog article in HTML for:
 Title: "${title}"
 Outline: ${outline}
-Make it engaging, informative, and at least 1500 words.`,
-      },
-    ],
-  });
-  return response.choices[0].message.content || "";
+Tone: ${tone}. Use H2, H3, P, UL, LI tags.`;
+  return await generateText(prompt);
 }
 
 export async function generateMetaDescription(
   title: string,
   content: string
 ): Promise<string> {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      {
-        role: "user",
-        content: `Write a compelling SEO meta description (150-160 characters) for:
+  const prompt = `Write a compelling SEO meta description (150-160 characters) for:
 Title: "${title}"
-Content excerpt: "${content.substring(0, 500)}"
-Return only the meta description, no quotes.`,
-      },
-    ],
-  });
-  return response.choices[0].message.content?.trim() || "";
+Content: "${content.substring(0, 500)}"
+Return only the meta description.`;
+  const result = await generateText(prompt);
+  return result.replace(/^"(.*)"$/, '$1'); // Remove potential quotes
 }
 
 export async function generateTags(
   title: string,
   content: string
 ): Promise<string[]> {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content: "Return only a JSON object with a tags array.",
-      },
-      {
-        role: "user",
-        content: `Generate 8-10 relevant SEO tags for:
-Title: "${title}"
-Content: "${content.substring(0, 500)}"
-Return as JSON: {"tags": ["tag1", "tag2"]}`,
-      },
-    ],
-    response_format: { type: "json_object" },
-  });
-  const parsed = JSON.parse(
-    response.choices[0].message.content || '{"tags":[]}'
-  );
-  return parsed.tags || [];
+  const prompt = `Generate 8-10 relevant SEO tags for: "${title}". Return as JSON: {"tags": ["tag1", "tag2"]}`;
+  const raw = await generateText(prompt);
+  try {
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : raw);
+    return parsed.tags || [];
+  } catch {
+    return ["blog", "article"];
+  }
 }
 
 export async function rewriteContent(
   content: string,
   instruction: string
 ): Promise<string> {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a professional editor. Rewrite content as instructed. Return HTML-formatted content.",
-      },
-      {
-        role: "user",
-        content: `Rewrite the following content with this instruction: "${instruction}"\n\nContent:\n${content}`,
-      },
-    ],
-  });
-  return response.choices[0].message.content || content;
+  const prompt = `Rewrite the following content with this instruction: "${instruction}"\n\nContent:\n${content}\n\nReturn HTML.`;
+  return await generateText(prompt);
 }
 
 export async function analyzeSEO(
@@ -146,19 +82,9 @@ export async function analyzeSEO(
   keywordDensity: number;
   readabilityScore: number;
 }> {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content: "You are an SEO expert. Return analysis as JSON.",
-      },
-      {
-        role: "user",
-        content: `Analyze SEO for:
+  const prompt = `Analyze SEO for:
 Title: "${title}"
 Focus keyword: "${keyword}"
-Content length: ${content.length} chars
 Content preview: "${content.substring(0, 1000)}"
 
 Return JSON: {
@@ -166,16 +92,25 @@ Return JSON: {
   "suggestions": ["suggestion1", "suggestion2"],
   "keywordDensity": 0.00,
   "readabilityScore": 0-100
-}`,
-      },
-    ],
-    response_format: { type: "json_object" },
-  });
+}`;
 
-  return JSON.parse(
-    response.choices[0].message.content ||
-      '{"score":0,"suggestions":[],"keywordDensity":0,"readabilityScore":0}'
-  );
+  const raw = await generateText(prompt);
+  try {
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    return JSON.parse(jsonMatch ? jsonMatch[0] : raw);
+  } catch {
+    return { score: 50, suggestions: ["Could not complete AI analysis"], keywordDensity: 0, readabilityScore: 50 };
+  }
 }
 
-export default openai;
+// Mock export for legacy compatibility
+export default {
+  chat: {
+    completions: {
+      create: async ({ messages }: any) => {
+        const content = await generateText(messages[messages.length - 1].content);
+        return { choices: [{ message: { content } }] };
+      }
+    }
+  }
+};

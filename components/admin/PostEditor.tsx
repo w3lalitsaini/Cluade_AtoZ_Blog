@@ -121,6 +121,7 @@ export function PostEditor({ categories, tags, post }: Props) {
     ],
     content: (post?.content as string) || "",
     editorProps: { attributes: { class: "tiptap-editor" } },
+    immediatelyRender: false,
   });
 
   const generateSlug = (text: string) => {

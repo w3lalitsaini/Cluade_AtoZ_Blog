@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server';
 import { runBlogAgent } from '@/lib/workflows/blogAgent';
 import { saveBlog } from '@/lib/services/blogService';
 import { isRateLimited } from '@/lib/services/rateLimiter';

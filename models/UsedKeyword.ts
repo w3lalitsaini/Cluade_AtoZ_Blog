@@ -37,10 +37,7 @@ const UsedKeywordSchema = new Schema<IUsedKeyword>({
   }
 }, { timestamps: true });
 
-// Indexing for quick lookups
-UsedKeywordSchema.index({ keyword: 1 });
-UsedKeywordSchema.index({ slug: 1 });
-
+// Indexing for quick lookups - redundant unique indexes removed (defined in schema)
 const UsedKeyword: Model<IUsedKeyword> = mongoose.models.UsedKeyword || mongoose.model<IUsedKeyword>('UsedKeyword', UsedKeywordSchema);
 
 export default UsedKeyword;

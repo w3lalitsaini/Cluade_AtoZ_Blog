@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import OpenAI from "openai";
+import { generateText } from "@/lib/services/aiService";
 
 type AIType = "titles" | "outline" | "article" | "rewrite" | "seo" | "tags" | "excerpt" | string;
 
@@ -40,31 +40,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ 
-        result: "⚠️ OpenAI API key not configured. Please add OPENAI_API_KEY to your .env file.\n\nExample output would appear here in production." 
-      });
-    }
-
-    const openai = new OpenAI({ apiKey });
     const userPrompt = buildPrompt(type, prompt);
+    const result = await generateText(userPrompt);
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert content writer and SEO specialist for AtoZ Blogs, a professional news and blogging platform. Write engaging, accurate, and well-structured content.",
-        },
-        { role: "user", content: userPrompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 2000,
-    });
-
-    const result = completion.choices[0]?.message?.content || "";
-    return NextResponse.json({ result, usage: completion.usage });
+    return NextResponse.json({ result });
   } catch (error) {
     console.error("AI generate error:", error);
     return NextResponse.json({ error: "Generation failed" }, { status: 500 });
