@@ -1,62 +1,10 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
-// =================== CATEGORY ===================
-export interface ICategory extends Document {
-  name: string;
-  slug: string;
-  description?: string;
-  image?: string;
-  color?: string;
-  parent?: mongoose.Types.ObjectId;
-  postCount: number;
-  isActive: boolean;
-  seo: { metaTitle?: string; metaDescription?: string };
-  order: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { Category, ICategory } from "./Category";
+import { Tag, ITag } from "./Tag";
 
-const CategorySchema = new Schema<ICategory>(
-  {
-    name: { type: String, required: true, trim: true },
-    slug: { type: String, required: true, unique: true, lowercase: true },
-    description: { type: String },
-    image: { type: String },
-    color: { type: String, default: "#ef4444" },
-    parent: { type: Schema.Types.ObjectId, ref: "Category" },
-    postCount: { type: Number, default: 0 },
-    isActive: { type: Boolean, default: true },
-    seo: { metaTitle: String, metaDescription: String },
-    order: { type: Number, default: 0 },
-  },
-  { timestamps: true },
-);
-
-export const Category: Model<ICategory> =
-  mongoose.models.Category ||
-  mongoose.model<ICategory>("Category", CategorySchema);
-
-// =================== TAG ===================
-export interface ITag extends Document {
-  name: string;
-  slug: string;
-  description?: string;
-  postCount: number;
-  createdAt: Date;
-}
-
-const TagSchema = new Schema<ITag>(
-  {
-    name: { type: String, required: true, trim: true },
-    slug: { type: String, required: true, unique: true, lowercase: true },
-    description: { type: String },
-    postCount: { type: Number, default: 0 },
-  },
-  { timestamps: true },
-);
-
-export const Tag: Model<ITag> =
-  mongoose.models.Tag || mongoose.model<ITag>("Tag", TagSchema);
+export { Category, Tag };
+export type { ICategory, ITag };
 
 // =================== COMMENT ===================
 export interface IComment extends Document {
@@ -317,45 +265,9 @@ export const SiteSettings: Model<ISiteSettings> =
   mongoose.models.SiteSettings ||
   mongoose.model<ISiteSettings>("SiteSettings", SiteSettingsSchema);
 
-// =================== MEDIA ===================
-export interface IMedia extends Document {
-  publicId: string;
-  url: string;
-  secureUrl: string;
-  originalFilename: string;
-  format: string;
-  width?: number;
-  height?: number;
-  size: number;
-  resourceType: string;
-  folder?: string;
-  uploadedBy: mongoose.Types.ObjectId;
-  alt?: string;
-  caption?: string;
-  tags: string[];
-  createdAt: Date;
-}
-
-const MediaSchema = new Schema<IMedia>({
-  publicId: { type: String, required: true, unique: true },
-  url: { type: String, required: true },
-  secureUrl: { type: String, required: true },
-  originalFilename: { type: String },
-  format: { type: String },
-  width: { type: Number },
-  height: { type: Number },
-  size: { type: Number },
-  resourceType: { type: String, default: "image" },
-  folder: { type: String },
-  uploadedBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  alt: { type: String },
-  caption: { type: String },
-  tags: [String],
-  createdAt: { type: Date, default: Date.now },
-});
-
-export const Media: Model<IMedia> =
-  mongoose.models.Media || mongoose.model<IMedia>("Media", MediaSchema);
+import { Media, IMedia } from "./Media";
+export { Media };
+export type { IMedia };
 
 // =================== POST LIKE ===================
 export interface IPostLike extends Document {
@@ -446,3 +358,30 @@ const MessageSchema = new Schema<IMessage>(
 
 export const Message: Model<IMessage> =
   mongoose.models.Message || mongoose.model<IMessage>("Message", MessageSchema);
+
+import Post from "./Post";
+import User from "./User";
+
+export { Post, User };
+
+/**
+ * Model Index
+ * Centralizes all Mongoose model registrations to prevent MissingSchemaError
+ * in Next.js Server Components and API Routes.
+ */
+export const models = {
+  Category,
+  Tag,
+  Comment,
+  Ad,
+  Subscriber,
+  Analytics,
+  SiteSettings,
+  Media,
+  PostLike,
+  Follow,
+  Bookmark,
+  Message,
+  Post,
+  User,
+};

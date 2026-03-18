@@ -15,6 +15,35 @@ import { auth } from '@/lib/auth';
  *   "save": boolean
  * }
  */
+/**
+ * GET /api/agent-blog
+ * Supports triggering via URL for easier testing.
+ */
+export async function GET(req) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const keyword = searchParams.get('keyword');
+    const save = searchParams.get('save') === 'true';
+    
+    if (!keyword) {
+      return NextResponse.json({ success: false, error: 'Keyword is required' }, { status: 400 });
+    }
+
+    // Reuse workflow logic
+    const result = await runBlogAgent(keyword, { useCache: true, autoSave: save });
+
+    return NextResponse.json({
+      success: true,
+      data: result,
+      saved: !!result.postId || result.cached
+    });
+
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
+
 export async function POST(req) {
   try {
     const session = await auth();

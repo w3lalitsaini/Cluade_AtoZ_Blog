@@ -1,39 +1,38 @@
-import mongoose, { Document, Model, Schema } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface ICategory extends Document {
   name: string;
   slug: string;
   description?: string;
   image?: string;
-  color: string;
-  parentCategory?: mongoose.Types.ObjectId;
-  order: number;
-  isActive: boolean;
+  color?: string;
+  parent?: mongoose.Types.ObjectId;
   postCount: number;
-  metaTitle?: string;
-  metaDescription?: string;
+  isActive: boolean;
+  seo: { metaTitle?: string; metaDescription?: string };
+  order: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
 const CategorySchema = new Schema<ICategory>(
   {
-    name: { type: String, required: true, trim: true, unique: true },
+    name: { type: String, required: true, trim: true },
     slug: { type: String, required: true, unique: true, lowercase: true },
     description: { type: String },
     image: { type: String },
-    color: { type: String, default: "#f97316" },
-    parentCategory: { type: Schema.Types.ObjectId, ref: "Category" },
-    order: { type: Number, default: 0 },
-    isActive: { type: Boolean, default: true },
+    color: { type: String, default: "#ef4444" },
+    parent: { type: Schema.Types.ObjectId, ref: "Category" },
     postCount: { type: Number, default: 0 },
-    metaTitle: String,
-    metaDescription: String,
+    isActive: { type: Boolean, default: true },
+    seo: { metaTitle: String, metaDescription: String },
+    order: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const Category: Model<ICategory> =
+export const Category: Model<ICategory> =
   mongoose.models.Category ||
   mongoose.model<ICategory>("Category", CategorySchema);
+
 export default Category;

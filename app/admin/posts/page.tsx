@@ -1,5 +1,5 @@
 import connectDB from "@/lib/db";
-import Post from "@/models/Post";
+import { Post } from "@/models/index";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
 import { Plus, Eye, Edit2, Trash2 } from "lucide-react";

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import "@/models/index"; // Ensure all models are registered
 
 declare global {
   // eslint-disable-next-line no-var
