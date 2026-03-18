@@ -40,6 +40,8 @@ interface Props {
 }
 
 export function PostEditor({ categories, tags, post }: Props) {
+  const [localCategories, setLocalCategories] = useState<Category[]>(categories);
+  const [localTags, setLocalTags] = useState<Tag[]>(tags);
   const [title, setTitle] = useState((post?.title as string) || "");
   const [excerpt, setExcerpt] = useState((post?.excerpt as string) || "");
   const [slug, setSlug] = useState((post?.slug as string) || "");
@@ -202,50 +204,97 @@ export function PostEditor({ categories, tags, post }: Props) {
     setAiStatus(null);
 
     const toastId = toast.loading(
-      action === "full" ? "Agents are researching and writing your blog..." : "Thinking..."
+      action === "full" ? "Agents are researching, writing and designing your blog..." : "Thinking..."
     );
 
     try {
-      // Use the new Agentic AI endpoint
       const res = await fetch("/api/agent-blog", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           keyword: title,
-          save: false, // We handle saving manually in the editor
+          save: false,
         }),
       });
 
       const json = await res.json();
-      
-      if (!json.success) {
-        throw new Error(json.error || "AI generation failed");
-      }
+      if (!json.success) throw new Error(json.error || "AI generation failed");
 
       const data = json.data;
+      console.log("AI Autofill Data:", data);
 
       if (action === "full" || action === "article") {
-        // 1. Content
+        // 1. Core Content
         editor?.commands.setContent(data.content);
+        setTitle(data.title || title);
+        setSlug(data.slug);
+        setExcerpt(data.excerpt || "");
         
         // 2. SEO & Meta
-        setSlug(data.slug);
-        setMetaDesc(data.meta_description);
-        setMetaTitle(data.title);
+        setMetaTitle(data.meta_title || data.title || title);
+        setMetaDesc(data.meta_description || "");
+        setFocusKeyword(data.focus_keyword || title);
         
-        // 3. Tags Matching
-        const matchedTagIds = data.tags
-          .map((tagName: string) => tags.find(t => t.name.toLowerCase() === tagName.toLowerCase())?._id)
-          .filter((id: string | undefined) => id !== undefined) as string[];
-        setSelectedTags(matchedTagIds);
+        // 3. Featured Image
+        if (data.featured_image) {
+          setFeaturedImage(data.featured_image);
+          setFeaturedImageAlt(data.title || title);
+        }
+        
+        // 4. Autonomous Category Matching & Creation
+        if (data.category) {
+          try {
+            const catRes = await fetch("/api/categories", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name: data.category }),
+            });
+            const catData = await catRes.json();
+            if (catData._id) {
+              setCategoryId(catData._id);
+              if (!localCategories.find(c => c._id === catData._id)) {
+                setLocalCategories(prev => [...prev, catData]);
+              }
+            }
+          } catch (err) {
+            console.error("Auto-category creation failed", err);
+          }
+        }
+        
+        // 5. Autonomous Tags Matching & Creation
+        if (data.tags && Array.isArray(data.tags)) {
+          try {
+            const tagPromises = data.tags.map(async (tagName: string) => {
+              const res = await fetch("/api/tags", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: tagName }),
+              });
+              return res.json();
+            });
+            
+            const createdTags = await Promise.all(tagPromises);
+            const validTags = createdTags.filter(t => t._id);
+            
+            setSelectedTags(validTags.map(t => t._id));
+            
+            // Update local tags list for UI
+            setLocalTags(prev => {
+              const newTags = validTags.filter(vt => !prev.find(p => p._id === vt._id));
+              return [...prev, ...newTags];
+            });
+          } catch (err) {
+            console.error("Auto-tags creation failed", err);
+          }
+        }
 
         setAiStatus({ isCached: data.cached, isFallback: data.fallback_used });
-        toast.success("Full blog generated and auto-filled!", { id: toastId });
+        toast.success("All fields auto-filled by AI 🚀", { id: toastId });
       } else if (action === "meta") {
         setMetaDesc(data.meta_description);
+        setMetaTitle(data.meta_title || data.title);
         toast.success("Meta description updated!", { id: toastId });
       } else if (action === "rewrite") {
-        // For individual actions, we still use the agent output but more targeted
         editor?.commands.setContent(data.content);
         toast.success("Content improved!", { id: toastId });
       }
@@ -584,7 +633,7 @@ export function PostEditor({ categories, tags, post }: Props) {
                   className="input-field text-sm"
                 >
                   <option value="">Select category</option>
-                  {categories.map((cat) => (
+                   {localCategories.map((cat) => (
                     <option key={cat._id} value={cat._id}>
                       {cat.name}
                     </option>
@@ -598,7 +647,7 @@ export function PostEditor({ categories, tags, post }: Props) {
                   Tags
                 </label>
                 <div className="flex flex-wrap gap-1.5 max-h-80 overflow-y-auto">
-                  {tags.map((tag) => (
+                   {localTags.map((tag) => (
                     <button
                       key={tag._id}
                       type="button"

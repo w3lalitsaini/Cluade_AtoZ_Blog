@@ -14,6 +14,9 @@ import {
   X,
   Image as ImageIcon,
   Filter,
+  Folder,
+  FolderOpen,
+  ChevronRight,
 } from "lucide-react";
 import toast from "react-hot-toast";
 interface MediaItem {
@@ -29,6 +32,8 @@ interface MediaItem {
   uploadedBy: { _id: string; name: string };
   createdAt: string;
   alt: string;
+  folder?: string;
+  synced?: boolean;
 }
 
 export default function AdminMediaPage() {
@@ -38,6 +43,8 @@ export default function AdminMediaPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [folders, setFolders] = useState<{ name: string; count: number }[]>([]);
+  const [selectedFolder, setSelectedFolder] = useState("All Folders");
 
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,15 +53,18 @@ export default function AdminMediaPage() {
   const fetchMedia = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/media?search=${search}&type=${typeFilter}`);
+      const res = await fetch(
+        `/api/media?search=${search}&type=${typeFilter}&folder=${selectedFolder}`,
+      );
       const data = await res.json();
       if (data.media) setMedia(data.media);
+      if (data.folders) setFolders(data.folders);
     } catch {
       toast.error("Failed to load media");
     } finally {
       setLoading(false);
     }
-  }, [search, typeFilter]);
+  }, [search, typeFilter, selectedFolder]);
 
   useEffect(() => {
     fetchMedia();
@@ -185,7 +195,65 @@ export default function AdminMediaPage() {
         </p>
       </div>
 
-      {/* Controls */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Sidebar - Folder Navigation */}
+        <div className="w-full lg:w-64 space-y-4">
+          <div className="bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800 rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-ink-100 dark:border-ink-800 bg-ink-50 dark:bg-ink-950">
+              <h3 className="text-sm font-sans font-bold text-ink-900 dark:text-white flex items-center gap-2">
+                <Folder size={16} className="text-brand-500" />
+                Folders
+              </h3>
+            </div>
+            <div className="p-2 space-y-1">
+              <button
+                onClick={() => setSelectedFolder("All Folders")}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-sans transition-colors ${
+                  selectedFolder === "All Folders"
+                    ? "bg-brand-50 dark:bg-brand-950 text-brand-600 dark:text-brand-400"
+                    : "text-ink-600 dark:text-ink-400 hover:bg-ink-50 dark:hover:bg-ink-800"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {selectedFolder === "All Folders" ? (
+                    <FolderOpen size={16} />
+                  ) : (
+                    <Folder size={16} />
+                  )}
+                  <span>All Media</span>
+                </div>
+                <span className="text-xs opacity-60">
+                  {folders.reduce((acc, f) => acc + f.count, 0)}
+                </span>
+              </button>
+
+              {folders.map((folder) => (
+                <button
+                  key={folder.name}
+                  onClick={() => setSelectedFolder(folder.name)}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-sans transition-colors ${
+                    selectedFolder === folder.name
+                      ? "bg-brand-50 dark:bg-brand-950 text-brand-600 dark:text-brand-400"
+                      : "text-ink-600 dark:text-ink-400 hover:bg-ink-50 dark:hover:bg-ink-800"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    {selectedFolder === folder.name ? (
+                      <FolderOpen size={16} />
+                    ) : (
+                      <Folder size={16} />
+                    )}
+                    <span className="truncate">{folder.name}</span>
+                  </div>
+                  <span className="text-xs opacity-60">{folder.count}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex-1 space-y-6">
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search
@@ -275,6 +343,13 @@ export default function AdminMediaPage() {
                   }`}
                   onClick={() => toggleSelect(media._id)}
                 >
+                  {/* Sync Status Badge */}
+                  {media.synced && (
+                    <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-green-500/80 rounded text-[10px] font-sans font-bold text-white uppercase tracking-wider">
+                      Synced
+                    </div>
+                  )}
+
                   <div className="aspect-square bg-ink-100 dark:bg-ink-800">
                     <NextImage
                       src={media.secureUrl || media.url}
@@ -341,6 +416,7 @@ export default function AdminMediaPage() {
                     <th className="w-10 px-4 py-3" />
                     {[
                       "File",
+                      "Folder",
                       "Format",
                       "Dimensions",
                       "Size",
@@ -358,7 +434,7 @@ export default function AdminMediaPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-ink-100 dark:divide-ink-800">
-                  {filtered.slice(0, 12).map((media) => (
+                  {filtered.map((media) => (
                     <tr
                       key={media._id}
                       className="hover:bg-ink-50 dark:hover:bg-ink-800/30"
@@ -375,6 +451,11 @@ export default function AdminMediaPage() {
                       <td className="px-4 py-2">
                         <span className="text-sm font-sans text-ink-800 dark:text-ink-200">
                           {media.originalFilename}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2">
+                        <span className="text-xs font-sans px-2 py-0.5 bg-ink-100 dark:bg-ink-800 rounded text-ink-500">
+                          {media.folder || "uploads"}
                         </span>
                       </td>
                       <td className="px-4 py-2">
@@ -432,6 +513,8 @@ export default function AdminMediaPage() {
           )}
         </>
       )}
+      </div>
+      </div>
     </div>
   );
 }

@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import { Media } from "@/models/index";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function GET(req: NextRequest) {
   try {
@@ -14,30 +21,70 @@ export async function GET(req: NextRequest) {
     await connectDB();
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search");
-    const type = searchParams.get("type"); // image, video, all
+    const type = searchParams.get("type");
+    const folder = searchParams.get("folder") || "All Folders";
 
-    // Base query
-    const query: any = {};
-    if (search) {
-      query.originalFilename = { $regex: search, $options: "i" };
-    }
+    // 1. Fetch Folders from Cloudinary (Source of Truth)
+    const { folders: cloudFolders } = await cloudinary.api.root_folders();
+    const folderList = cloudFolders.map((f: any) => ({ name: f.name, count: 0 }));
+
+    // 2. Base Mongo Query
+    const mongoQuery: any = {};
+    if (search) mongoQuery.originalFilename = { $regex: search, $options: "i" };
     if (type && type !== "All Types") {
-      if (type === "Images") query.resourceType = "image";
-      else if (type === "Videos") query.resourceType = "video";
-      else if (type === "Documents") query.resourceType = "raw";
+      if (type === "Images") mongoQuery.resourceType = "image";
+      else if (type === "Videos") mongoQuery.resourceType = "video";
     }
 
-    // Only authors see their own media, admins/editors see all
-    if (role === "author") {
-      query.uploadedBy = (session.user as any).id;
+    // 3. Fetch Media
+    let media = [];
+    if (folder !== "All Folders") {
+      // Fetch specifically from Cloudinary folder
+      const cloudRes = await cloudinary.api.resources({
+        type: "upload",
+        prefix: folder,
+        max_results: 100,
+      });
+
+      const mongoMedia = await Media.find({ folder }).populate("uploadedBy", "name").lean();
+      
+      media = cloudRes.resources.map((resource: any) => {
+        const local = mongoMedia.find((m: any) => m.publicId === resource.public_id);
+        return {
+          _id: local?._id || resource.public_id,
+          publicId: resource.public_id,
+          url: resource.url,
+          secureUrl: resource.secure_url,
+          originalFilename: local?.originalFilename || resource.public_id.split("/").pop(),
+          format: resource.format,
+          width: resource.width,
+          height: resource.height,
+          size: resource.bytes,
+          uploadedBy: local?.uploadedBy || { name: "System" },
+          createdAt: resource.created_at,
+          folder: folder,
+          synced: !!local
+        };
+      });
+    } else {
+      // Show all from Mongo (Standard view)
+      media = await Media.find(mongoQuery)
+        .populate("uploadedBy", "name")
+        .sort({ createdAt: -1 })
+        .lean();
     }
 
-    const media = await Media.find(query)
-      .populate("uploadedBy", "name")
-      .sort({ createdAt: -1 })
-      .lean();
+    // 4. Update counts for folders list
+    const counts = await Media.aggregate([
+      { $group: { _id: "$folder", count: { $sum: 1 } } }
+    ]);
+    
+    const finalFolders = folderList.map(f => {
+      const match = counts.find(c => c._id === f.name);
+      return { ...f, count: match?.count || 0 };
+    });
 
-    return NextResponse.json({ media });
+    return NextResponse.json({ media, folders: finalFolders });
   } catch (error) {
     console.error("GET /api/media error:", error);
     return NextResponse.json(

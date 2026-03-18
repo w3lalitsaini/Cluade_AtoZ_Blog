@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { runBlogAgent } from '@/lib/workflows/blogAgent';
-import { saveBlog } from '@/lib/services/blogService';
 import { isRateLimited } from '@/lib/services/rateLimiter';
 import { logInfo, logError, logWarn } from '@/lib/services/logger';
+import { auth } from '@/lib/auth';
 
 /**
  * POST /api/agent-blog
@@ -17,6 +17,9 @@ import { logInfo, logError, logWarn } from '@/lib/services/logger';
  */
 export async function POST(req) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
     // 0. Rate Limiting Check
     const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
     if (isRateLimited(ip)) {
@@ -28,7 +31,7 @@ export async function POST(req) {
     }
 
     const { keyword, save = false } = await req.json();
-    await logInfo('AgentBlogAPI', `Received request: ${keyword}`, { save });
+    await logInfo('AgentBlogAPI', `Received request: ${keyword}`, { save, userId });
 
     // 1. Validation
     if (!keyword || typeof keyword !== 'string' || keyword.trim() === '') {
@@ -39,7 +42,7 @@ export async function POST(req) {
     }
 
     // 2. Execute Workflow
-    const result = await runBlogAgent(keyword, { useCache: true, autoSave: save });
+    const result = await runBlogAgent(keyword, { useCache: true, autoSave: save, userId });
 
     // 3. Standardized Response
     return NextResponse.json({

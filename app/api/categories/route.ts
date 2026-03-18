@@ -26,20 +26,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
-    const body = await req.json();
+    const { name, ...rest } = await req.json();
     await connectDB();
-    const slug = body.name
+    const slug = name
       .toLowerCase()
+      .trim()
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9-]/g, "");
-    const cat = await Category.create({ ...body, slug });
+
+    // Find or create
+    let cat = await Category.findOne({ name: { $regex: new RegExp(`^${name}$`, "i") } });
+    if (cat) return NextResponse.json(cat, { status: 200 });
+
+    cat = await Category.create({ name, slug, ...rest });
     return NextResponse.json(cat, { status: 201 });
   } catch (e: any) {
-    if (e.code === 11000)
-      return NextResponse.json(
-        { error: "Category already exists" },
-        { status: 409 },
-      );
-    return NextResponse.json({ error: "Create failed" }, { status: 500 });
+    console.error("Category Error:", e);
+    return NextResponse.json({ error: "Operation failed" }, { status: 500 });
   }
 }

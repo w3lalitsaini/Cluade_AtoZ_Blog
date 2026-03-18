@@ -10,15 +10,16 @@ A large-scale, production-ready news and blogging platform built with the latest
 |-------|-----------|
 | Framework | Next.js 15 (App Router) |
 | Language | TypeScript |
-| Styling | Tailwind CSS |
+| Styling | Vanilla CSS |
 | Database | MongoDB + Mongoose |
 | Auth | NextAuth v5 (JWT + OAuth) |
 | Media | Cloudinary |
 | Editor | TipTap Rich Text Editor |
 | Animations | Framer Motion |
-| Caching | Redis (ioredis) |
+| Caching | Upstash Redis (Serverless) |
 | Validation | Zod |
-| AI | OpenAI API |
+| AI (Text) | Llama-3-70B (Groq) |
+| AI (Image) | Stable Diffusion XL 1.0 |
 | Email | NodeMailer |
 
 ---
@@ -73,9 +74,9 @@ atozblog/
 │   ├── mongodb.ts         # DB connection
 │   ├── seo.ts             # SEO utilities + schema generation
 │   ├── utils.ts           # Helpers
-│   ├── openai.ts          # OpenAI client
+│   ├── openai.ts          # AI proxy
 │   ├── cloudinary.ts      # Cloudinary config
-│   ├── redis.ts           # Redis caching
+│   ├── services/          # AI, Image, Cache, Logger services
 │   └── email.ts           # Email service
 └── .env.example           # Environment variables template
 ```
@@ -107,13 +108,13 @@ NEXTAUTH_SECRET=generate-a-strong-secret-here
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 # Optional but recommended
-OPENAI_API_KEY=sk-...
-CLOUDINARY_CLOUD_NAME=...
-CLOUDINARY_API_KEY=...
-CLOUDINARY_API_SECRET=...
-GOOGLE_CLIENT_ID=...
-GOOGLE_CLIENT_SECRET=...
-REDIS_URL=redis://localhost:6379
+# AI Tools
+GROQ_API_KEY=your_groq_key
+PEXELS_API_KEY=your_pexels_key
+
+# Redis
+UPSTASH_REDIS_REST_URL=https://...
+UPSTASH_REDIS_REST_TOKEN=...
 
 # AdSense
 NEXT_PUBLIC_ADSENSE_CLIENT_ID=ca-pub-...

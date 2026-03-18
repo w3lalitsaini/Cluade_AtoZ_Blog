@@ -32,16 +32,18 @@ export async function POST(req: Request) {
     await connectDB();
     const slug = name
       .toLowerCase()
+      .trim()
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9-]/g, "");
-    const tag = await Tag.create({ name, slug, description });
+
+    // Find or create
+    let tag = await Tag.findOne({ name: { $regex: new RegExp(`^${name}$`, "i") } });
+    if (tag) return NextResponse.json(tag, { status: 200 });
+
+    tag = await Tag.create({ name, slug, description });
     return NextResponse.json(tag, { status: 201 });
   } catch (e: any) {
-    if (e.code === 11000)
-      return NextResponse.json(
-        { error: "Tag already exists" },
-        { status: 409 },
-      );
-    return NextResponse.json({ error: "Create failed" }, { status: 500 });
+    console.error("Tag Error:", e);
+    return NextResponse.json({ error: "Operation failed" }, { status: 500 });
   }
 }
