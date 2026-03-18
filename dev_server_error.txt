@@ -25,3 +25,5 @@ char:3
 
  Γ£ô Starting...
  Γ£ô Ready in 3.6s
+   Reload env: .env
+   Reload env: .env

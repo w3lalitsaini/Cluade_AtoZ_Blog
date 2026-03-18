@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const bcrypt = require("bcryptjs");
 const { config } = require("dotenv");
 
 config();
@@ -165,7 +166,7 @@ async function seed() {
       {
         name: "Admin User",
         email: "admin@example.com",
-        password: "password123",
+        password: await bcrypt.hash("password123", 12),
         role: "admin",
         isVerified: true,
         bio: "System Administrator",
@@ -175,7 +176,7 @@ async function seed() {
       {
         name: "Sarah Johnson",
         email: "sarah@example.com",
-        password: "password123",
+        password: await bcrypt.hash("password123", 12),
         role: "author",
         isVerified: true,
         bio: "Sarah is a veteran tech journalist with a passion for emerging technologies and their impact on society.",
@@ -186,7 +187,7 @@ async function seed() {
       {
         name: "Mike Chen",
         email: "mike@example.com",
-        password: "password123",
+        password: await bcrypt.hash("password123", 12),
         role: "author",
         isVerified: true,
         bio: "Mike specializes in business strategy and market analysis, bringing deep insights into the corporate world.",
@@ -197,7 +198,7 @@ async function seed() {
       {
         name: "Emma Williams",
         email: "emma@example.com",
-        password: "password123",
+        password: await bcrypt.hash("password123", 12),
         role: "author",
         isVerified: true,
         bio: "Emma covers health and wellness, focusing on science-backed advice and medical advancements.",
