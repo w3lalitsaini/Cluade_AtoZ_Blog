@@ -256,7 +256,7 @@ export default function AdminAIPage() {
                     />
                   ) : (
                     <p className="text-gray-600 dark:text-gray-400 leading-relaxed italic">
-                      "{result.meta_description}"
+                      &quot;{result.meta_description}&quot;
                     </p>
                   )}
                 </div>

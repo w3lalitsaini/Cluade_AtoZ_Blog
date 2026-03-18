@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Mail,
   Trash2,
@@ -21,7 +21,7 @@ export default function AdminMessagesPage() {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     setLoading(true);
     try {
       const url =
@@ -36,11 +36,11 @@ export default function AdminMessagesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
 
   useEffect(() => {
     fetchMessages();
-  }, [filter]);
+  }, [fetchMessages]);
 
   const updateStatus = async (id: string, status: string) => {
     try {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import NextImage from "next/image";
 import {
   Upload,
@@ -43,7 +43,7 @@ export default function AdminMediaPage() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
 
-  const fetchMedia = async () => {
+  const fetchMedia = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`/api/media?search=${search}&type=${typeFilter}`);
@@ -54,12 +54,11 @@ export default function AdminMediaPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, typeFilter]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchMedia();
-  }, [search, typeFilter]);
+  }, [fetchMedia]);
 
   const handleUpload = async (files: FileList | File[]) => {
     if (!files || files.length === 0) return;
