@@ -1,0 +1,7 @@
+﻿≡ƒº¬ Starting Full System Test: Agentic AI Integration
+Keyword: "Sustainability in Smart Cities 2026"
+Endpoint: http://localhost:3000/api/agent-blog
+
+[1/3] Triggering AI Generation (may take 20-40s)...
+[2/3] Response received in 31.4s.
+[3/3] Verifying data integrity...

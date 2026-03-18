@@ -106,6 +106,7 @@ export function PostEditor({ categories, tags, post }: Props) {
   const [seoOpen, setSeoOpen] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(true);
+  const [aiStatus, setAiStatus] = useState<{ isCached: boolean; isFallback: boolean } | null>(null);
 
   const editor = useEditor({
     extensions: [
@@ -191,30 +192,64 @@ export function PostEditor({ categories, tags, post }: Props) {
   };
 
   const handleAI = async (action: string) => {
+    if (!title) {
+        toast.error("Please enter a topic in the title field first.");
+        return;
+    }
+
     setAiLoading(action);
+    setAiStatus(null);
+
+    const toastId = toast.loading(
+      action === "full" ? "Agents are researching and writing your blog..." : "Thinking..."
+    );
+
     try {
-      const res = await fetch("/api/ai/generate", {
+      // Use the new Agentic AI endpoint
+      const res = await fetch("/api/agent-blog", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action,
-          title,
-          content: editor?.getText() || "",
+          keyword: title,
+          save: false, // We handle saving manually in the editor
         }),
       });
-      const data = await res.json();
-      if (action === "outline" && data.result) {
-        editor?.commands.setContent(data.result);
-      } else if (action === "article" && data.result) {
-        editor?.commands.setContent(data.result);
-      } else if (action === "meta" && data.result) {
-        setMetaDesc(data.result);
-        toast.success("Meta description generated!");
-      } else if (action === "tags" && data.result) {
-        toast.success("Tags generated! Check SEO section.");
+
+      const json = await res.json();
+      
+      if (!json.success) {
+        throw new Error(json.error || "AI generation failed");
       }
-    } catch {
-      toast.error("AI generation failed");
+
+      const data = json.data;
+
+      if (action === "full" || action === "article") {
+        // 1. Content
+        editor?.commands.setContent(data.content);
+        
+        // 2. SEO & Meta
+        setSlug(data.slug);
+        setMetaDesc(data.meta_description);
+        setMetaTitle(data.title);
+        
+        // 3. Tags Matching
+        const matchedTagIds = data.tags
+          .map((tagName: string) => tags.find(t => t.name.toLowerCase() === tagName.toLowerCase())?._id)
+          .filter((id: string | undefined) => id !== undefined) as string[];
+        setSelectedTags(matchedTagIds);
+
+        setAiStatus({ isCached: data.cached, isFallback: data.fallback_used });
+        toast.success("Full blog generated and auto-filled!", { id: toastId });
+      } else if (action === "meta") {
+        setMetaDesc(data.meta_description);
+        toast.success("Meta description updated!", { id: toastId });
+      } else if (action === "rewrite") {
+        // For individual actions, we still use the agent output but more targeted
+        editor?.commands.setContent(data.content);
+        toast.success("Content improved!", { id: toastId });
+      }
+    } catch (err: any) {
+      toast.error(err.message || "AI generation failed", { id: toastId });
     }
     setAiLoading(null);
   };
@@ -304,26 +339,49 @@ export function PostEditor({ categories, tags, post }: Props) {
           </p>
           <div className="flex flex-wrap gap-2">
             {[
-              { action: "outline", label: "Generate Outline" },
-              { action: "article", label: "Write Full Article" },
-              { action: "meta", label: "Generate Meta" },
-              { action: "rewrite", label: "Improve Content" },
-            ].map(({ action, label }) => (
+              { action: "full", label: "Generate Full Blog", primary: true },
+              { action: "rewrite", label: "Regenerate Content", primary: false },
+              { action: "meta", label: "Update Meta Only", primary: false },
+            ].map(({ action, label, primary }) => (
               <button
                 key={action}
                 disabled={!!aiLoading || !title}
                 onClick={() => handleAI(action)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-ink-900 border border-purple-200 dark:border-purple-700 rounded-lg font-sans text-xs font-medium text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors disabled:opacity-50"
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl font-sans text-xs font-bold transition-all disabled:opacity-50 ${
+                  primary 
+                  ? "bg-purple-600 text-white hover:bg-purple-700 shadow-md shadow-purple-200 dark:shadow-none" 
+                  : "bg-white dark:bg-ink-900 border border-purple-200 dark:border-purple-700 text-purple-700 dark:text-purple-300 hover:bg-purple-50"
+                }`}
               >
                 {aiLoading === action ? (
-                  <Loader2 className="w-3 h-3 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
-                  <Sparkles className="w-3 h-3" />
+                  <Sparkles className="w-3.5 h-3.5" />
                 )}
                 {label}
               </button>
             ))}
           </div>
+          
+          {aiStatus && (
+            <div className="mt-4 flex items-center gap-3 animate-in fade-in slide-in-from-left-2">
+              {aiStatus.isCached && (
+                <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-bold uppercase tracking-wider rounded-md border border-green-200 dark:border-green-800">
+                  Cached Result
+                </span>
+              )}
+              {aiStatus.isFallback && (
+                <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider rounded-md border border-amber-200 dark:border-amber-800">
+                  Fallback Mode Active
+                </span>
+              )}
+              {!aiStatus.isFallback && !aiStatus.isCached && (
+                <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold uppercase tracking-wider rounded-md border border-blue-200 dark:border-blue-800">
+                  Live Agentic Generation
+                </span>
+              )}
+            </div>
+          )}
           {!title && (
             <p className="font-sans text-xs text-purple-400 mt-2">
               Add a title first to use AI tools

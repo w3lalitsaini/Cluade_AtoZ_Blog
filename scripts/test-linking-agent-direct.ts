@@ -35,8 +35,8 @@ async function testLinkingAgentDirect() {
       console.warn('VERIFICATION: No links found but no fallback used? Check agent logic.');
     }
 
-  } catch (error) {
-    console.error('Test Failed:', error.message);
+  } catch (error: any) {
+    console.error('Test Failed:', error?.message || error);
   }
 }
 

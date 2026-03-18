@@ -84,8 +84,8 @@ async function check() {
 
     await mongoose.disconnect();
     console.log("\nDisconnected from MongoDB");
-  } catch (error) {
-    console.error("Error:", error);
+  } catch (error: any) {
+    console.error("Error:", error?.message || error);
     process.exit(1);
   }
 }

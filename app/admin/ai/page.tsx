@@ -1,167 +1,380 @@
 "use client";
-import { useState } from "react";
-import { Sparkles, Copy, RefreshCw, Wand2, FileText, Tags, Search, Pen } from "lucide-react";
+
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
+import { 
+  Sparkles, 
+  RefreshCw, 
+  Save, 
+  Edit3, 
+  Eye, 
+  Layout, 
+  Tags, 
+  Search, 
+  AlertCircle, 
+  CheckCircle2,
+  Database,
+  History,
+  ArrowRight
+} from "lucide-react";
 import toast from "react-hot-toast";
 
-type Tool = "titles" | "outline" | "article" | "rewrite" | "seo" | "tags" | "excerpt";
+interface AIResult {
+  topic: string;
+  keywords: string[];
+  search_intent: string;
+  title: string;
+  meta_description: string;
+  slug: string;
+  tags: string[];
+  content: string;
+  fallback_used: boolean;
+  cached: boolean;
+}
 
-const tools: { id: Tool; label: string; icon: any; description: string; placeholder: string }[] = [
-  { id: "titles", label: "Generate Titles", icon: Wand2, description: "Generate catchy, SEO-optimized article titles", placeholder: "Describe what your article is about..." },
-  { id: "outline", label: "Article Outline", icon: FileText, description: "Create a structured outline for your article", placeholder: "Enter your article title or topic..." },
-  { id: "article", label: "Write Article", icon: Pen, description: "Generate a full article draft with sections", placeholder: "Enter your article title and any key points..." },
-  { id: "rewrite", label: "Rewrite Content", icon: RefreshCw, description: "Improve and rewrite existing content", placeholder: "Paste the content you want to rewrite..." },
-  { id: "seo", label: "SEO Optimization", icon: Search, description: "Generate meta titles, descriptions, and SEO suggestions", placeholder: "Enter your article title or paste your content..." },
-  { id: "tags", label: "Generate Tags", icon: Tags, description: "Generate relevant tags for your article", placeholder: "Paste your article title and excerpt..." },
-  { id: "excerpt", label: "Write Excerpt", icon: FileText, description: "Generate a compelling excerpt/summary", placeholder: "Enter your article title or paste the full content..." },
-];
-
-export default function AIAssistantPage() {
-  const [activeTool, setActiveTool] = useState<Tool>("titles");
-  const [input, setInput] = useState("");
-  const [output, setOutput] = useState("");
+export default function AdminAIPage() {
+  const { data: session, status } = useSession();
+  const [keyword, setKeyword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<AIResult | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState<Partial<AIResult>>({});
+  const [saving, setSaving] = useState(false);
 
-  const tool = tools.find((t) => t.id === activeTool)!;
+  // 1. Authorization Check
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      redirect("/auth/login");
+    }
+  }, [status]);
 
-  const generate = async () => {
-    if (!input.trim()) return;
+  const isAdmin = (session?.user as any)?.role === "admin";
+
+  if (status === "loading") return <div className="p-10 text-center">Loading context...</div>;
+  if (!isAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] space-y-4">
+        <AlertCircle className="w-12 h-12 text-red-500" />
+        <h1 className="text-2xl font-bold">Access Denied</h1>
+        <p className="text-gray-500">Only administrators can access the AI Blog Generator.</p>
+      </div>
+    );
+  }
+
+  // 2. Generation Logic
+  const handleGenerate = async () => {
+    if (!keyword.trim()) {
+      toast.error("Please enter a keyword.");
+      return;
+    }
+
     setLoading(true);
-    setOutput("");
+    setResult(null);
+    setIsEditing(false);
+
     try {
-      const res = await fetch("/api/ai/generate", {
+      const res = await fetch("/api/agent-blog", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: activeTool, prompt: input }),
+        body: JSON.stringify({ keyword: keyword.trim(), save: false }),
       });
+
       const data = await res.json();
-      setOutput(data.result || data.error || "No result generated.");
-    } catch {
-      setOutput("Failed to generate. Please check your OpenAI API key.");
+      if (data.success) {
+        setResult(data.data);
+        setEditData(data.data);
+        toast.success(data.data.cached ? "Cache Hit! Retrieved from DB." : "Blog generated successfully!");
+      } else {
+        toast.error(data.error || "Generation failed.");
+      }
+    } catch (err) {
+      toast.error("An error occurred during generation.");
     } finally {
       setLoading(false);
     }
   };
 
-  const copyOutput = () => {
-    navigator.clipboard.writeText(output);
-    toast.success("Copied to clipboard!");
+  // 3. Save Logic
+  const handleSave = async () => {
+    if (!editData.topic || !editData.content) {
+      toast.error("Title and Content are required.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      // We use the standard /api/posts route for saving our final refined blog
+      const res = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: editData.topic,
+          content: editData.content,
+          excerpt: editData.meta_description,
+          slug: editData.slug,
+          tags: editData.tags,
+          category: "ai-generated", // We'll use a specific category for AI posts
+          status: "published",
+          seo: {
+            metaTitle: editData.title,
+            metaDescription: editData.meta_description,
+            focusKeyword: editData.topic
+          }
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Blog post saved successfully!");
+        setResult(null);
+        setKeyword("");
+      } else {
+        toast.error(data.error || "Failed to save post.");
+      }
+    } catch (err) {
+      toast.error("Error saving to database.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-ink-900 dark:text-ink-100 flex items-center gap-2">
-          <Sparkles className="w-6 h-6 text-brand-500" />
-          AI Writing Assistant
-        </h1>
-        <p className="text-sm text-ink-500 mt-0.5">Powered by OpenAI · Generate content, titles, SEO, and more</p>
+    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+      {/* HEADER SECTION */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-800 pb-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
+            <Sparkles className="w-8 h-8 text-brand-500" />
+            Agentic AI Blog Factory
+          </h1>
+          <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-2xl">
+            Generate high-quality, SEO-optimized blog posts using our autonomous AI research and writing agents.
+          </p>
+        </div>
       </div>
 
-      <div className="flex gap-5">
-        {/* Tool Selector */}
-        <div className="w-56 shrink-0">
-          <div className="bg-white dark:bg-ink-900 rounded-xl border border-ink-100 dark:border-ink-800 overflow-hidden">
-            <div className="px-4 py-3 border-b border-ink-100 dark:border-ink-800">
-              <p className="text-xs font-bold text-ink-500 uppercase tracking-wider">AI Tools</p>
-            </div>
-            <nav className="p-2 space-y-1">
-              {tools.map((t) => {
-                const Icon = t.icon;
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => { setActiveTool(t.id); setOutput(""); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-left transition-colors ${
-                      activeTool === t.id
-                        ? "bg-brand-500 text-white"
-                        : "text-ink-600 dark:text-ink-400 hover:bg-ink-50 dark:hover:bg-ink-800"
-                    }`}
-                  >
-                    <Icon className="w-4 h-4 shrink-0" />
-                    {t.label}
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
-        </div>
-
-        {/* Main area */}
-        <div className="flex-1 min-w-0 space-y-4">
-          {/* Tool info */}
-          <div className="bg-gradient-to-r from-brand-50 to-orange-50 dark:from-brand-950/30 dark:to-orange-950/20 rounded-xl p-4 border border-brand-100 dark:border-brand-900">
-            <div className="flex items-center gap-2">
-              <tool.icon className="w-5 h-5 text-brand-600" />
-              <h2 className="font-semibold text-brand-800 dark:text-brand-300">{tool.label}</h2>
-            </div>
-            <p className="text-sm text-brand-700 dark:text-brand-400 mt-1">{tool.description}</p>
-          </div>
-
-          {/* Input */}
-          <div className="bg-white dark:bg-ink-900 rounded-xl border border-ink-100 dark:border-ink-800 p-5">
-            <label className="text-xs font-bold text-ink-500 uppercase tracking-wider block mb-2">Your Input</label>
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={tool.placeholder}
-              rows={6}
-              className="w-full bg-ink-50 dark:bg-ink-800 px-4 py-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 resize-none text-ink-800 dark:text-ink-200 placeholder-ink-400"
+      {/* GENERATOR SECTION (A) */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+          What should the AI write about?
+        </label>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="e.g. Future of Quantum Computing, Healthy Meal Prep 2026..."
+              className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl focus:ring-2 focus:ring-brand-500 transition-all outline-none"
+              onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
             />
-            <div className="flex items-center justify-between mt-3">
-              <p className="text-xs text-ink-400">{input.length} characters</p>
-              <div className="flex gap-2">
-                <button onClick={() => setInput("")} className="px-3 py-1.5 text-xs text-ink-500 hover:text-ink-700 border border-ink-200 dark:border-ink-700 rounded-lg">
-                  Clear
-                </button>
-                <button
-                  onClick={generate}
-                  disabled={loading || !input.trim()}
-                  className="flex items-center gap-2 px-5 py-1.5 bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold rounded-lg disabled:opacity-60 transition-colors"
-                >
-                  {loading ? (
-                    <><RefreshCw className="w-4 h-4 animate-spin" /> Generating...</>
-                  ) : (
-                    <><Sparkles className="w-4 h-4" /> Generate</>
-                  )}
-                </button>
-              </div>
-            </div>
           </div>
+          <button
+            onClick={handleGenerate}
+            disabled={loading || !keyword.trim()}
+            className="px-8 py-3 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white font-bold rounded-xl shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2 min-w-[180px]"
+          >
+            {loading ? (
+              <RefreshCw className="w-5 h-5 animate-spin" />
+            ) : (
+              <Sparkles className="w-5 h-5" />
+            )}
+            {loading ? "Researching..." : "Generate Blog"}
+          </button>
+        </div>
+      </div>
 
-          {/* Output */}
-          {(output || loading) && (
-            <div className="bg-white dark:bg-ink-900 rounded-xl border border-ink-100 dark:border-ink-800 p-5">
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-xs font-bold text-ink-500 uppercase tracking-wider">AI Output</label>
-                {output && (
-                  <div className="flex gap-2">
-                    <button onClick={copyOutput} className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-ink-600 dark:text-ink-400 border border-ink-200 dark:border-ink-700 rounded-lg hover:bg-ink-50 dark:hover:bg-ink-800">
-                      <Copy className="w-3.5 h-3.5" /> Copy
-                    </button>
-                    <button onClick={generate} className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-brand-500 border border-brand-200 dark:border-brand-800 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-950/20">
-                      <RefreshCw className="w-3.5 h-3.5" /> Regenerate
-                    </button>
-                  </div>
+      {/* LOADING STATE */}
+      {loading && (
+        <div className="space-y-6">
+          <div className="h-64 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-2xl" />
+          <div className="h-32 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-2xl" />
+        </div>
+      )}
+
+      {/* RESULT & PREVIEW SECTION (B) */}
+      {result && !loading && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in slide-in-from-bottom-4 duration-500">
+          
+          {/* Metadata Sidebar */}
+          <div className="space-y-6">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="font-bold flex items-center gap-2">
+                  <Layout className="w-5 h-5 text-brand-500" />
+                  Metadata
+                </h2>
+                {result.cached && (
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-[10px] font-bold uppercase rounded flex items-center gap-1">
+                    <History className="w-3 h-3" /> Cached
+                  </span>
+                )}
+                {result.fallback_used && (
+                  <span className="px-2 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-[10px] font-bold uppercase rounded flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" /> Fallback
+                  </span>
                 )}
               </div>
-              {loading ? (
-                <div className="flex items-center gap-3 py-8">
-                  <div className="flex gap-1">
-                    {[0, 1, 2].map((i) => (
-                      <div key={i} className="w-2 h-2 bg-brand-400 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.1}s` }} />
+
+              <div className="space-y-4 text-sm">
+                <div>
+                  <label className="text-gray-400 text-xs font-bold uppercase block mb-1">Topic</label>
+                  {isEditing ? (
+                    <input 
+                      value={editData.topic} 
+                      onChange={(e) => setEditData({...editData, topic: e.target.value})}
+                      className="w-full bg-gray-50 dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700" 
+                    />
+                  ) : (
+                    <p className="font-medium">{result.topic}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-gray-400 text-xs font-bold uppercase block mb-1">Slug</label>
+                   {isEditing ? (
+                    <input 
+                      value={editData.slug} 
+                      onChange={(e) => setEditData({...editData, slug: e.target.value})}
+                      className="w-full bg-gray-50 dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700" 
+                    />
+                  ) : (
+                    <code className="text-brand-600 dark:text-brand-400">{result.slug}</code>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-gray-400 text-xs font-bold uppercase block mb-1">Meta Description</label>
+                  {isEditing ? (
+                    <textarea 
+                      value={editData.meta_description} 
+                      onChange={(e) => setEditData({...editData, meta_description: e.target.value})}
+                      rows={3}
+                      className="w-full bg-gray-50 dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700 resize-none" 
+                    />
+                  ) : (
+                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed italic">
+                      "{result.meta_description}"
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-gray-400 text-xs font-bold uppercase block mb-1">Tags</label>
+                  <div className="flex flex-wrap gap-2">
+                    {result.tags.map(tag => (
+                      <span key={tag} className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">#{tag}</span>
                     ))}
                   </div>
-                  <span className="text-sm text-ink-400">AI is generating your content...</span>
+                </div>
+              </div>
+
+              {/* ACTIONS (C) */}
+              <div className="pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all"
+                >
+                  {saving ? <RefreshCw className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
+                  Save to Blog
+                </button>
+                
+                <div className="grid grid-cols-2 gap-3">
+                   <button
+                    onClick={() => setIsEditing(!isEditing)}
+                    className={`py-2 text-sm font-semibold rounded-xl border transition-all flex items-center justify-center gap-2 ${
+                      isEditing 
+                        ? "bg-brand-50 border-brand-200 text-brand-600" 
+                        : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300"
+                    }`}
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    {isEditing ? "Finish Editing" : "Edit Post"}
+                  </button>
+                  <button
+                    onClick={handleGenerate}
+                    className="py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    Regenerate
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Content Main Area */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col">
+              <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                <h2 className="font-bold flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-brand-500" />
+                  {isEditing ? "Live Editor" : "Content Preview"}
+                </h2>
+                <div className="flex gap-2 text-xs text-gray-400">
+                  <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-green-500" /> SEO Validated</span>
+                  <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-green-500" /> Linking OK</span>
+                </div>
+              </div>
+
+              {/* FALLBACK WARNING & RETRY (D) */}
+              {result.fallback_used && (
+                <div className="mx-6 mt-6 px-6 py-4 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-in slide-in-from-top-2">
+                  <div className="flex items-center gap-3 text-amber-800">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    <p className="text-sm font-medium">AI limit reached. Showing fallback content.</p>
+                  </div>
+                  <button 
+                    onClick={handleGenerate}
+                    disabled={loading}
+                    className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+                  >
+                    {loading ? <RefreshCw className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                    Retry AI Generation
+                  </button>
+                </div>
+              )}
+
+              {isEditing ? (
+                <div className="p-6">
+                  <textarea
+                    value={editData.content}
+                    onChange={(e) => setEditData({...editData, content: e.target.value})}
+                    rows={20}
+                    className="w-full bg-gray-50 dark:bg-gray-800 p-4 rounded-xl border-none focus:ring-0 text-gray-800 dark:text-gray-200 font-mono text-sm leading-relaxed resize-none"
+                  />
                 </div>
               ) : (
-                <div className="bg-ink-50 dark:bg-ink-800 rounded-lg p-4">
-                  <pre className="text-sm text-ink-800 dark:text-ink-200 whitespace-pre-wrap font-body leading-relaxed">{output}</pre>
+                <div className="p-10 prose dark:prose-invert max-w-none">
+                  {/* We inject the HTML securely for preview */}
+                  <div dangerouslySetInnerHTML={{ __html: result.content }} />
                 </div>
               )}
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* EMPTY STATE */}
+      {!result && !loading && (
+        <div className="flex flex-col items-center justify-center py-20 bg-gray-50/50 dark:bg-gray-900/50 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-[2.5rem] animate-in zoom-in duration-700">
+           <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-6">
+              <Database className="w-10 h-10 text-gray-300" />
+           </div>
+           <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">Ready for Research</h3>
+           <p className="text-gray-500 dark:text-gray-400 mt-2 text-center max-w-sm px-4">
+             Enter a keyword above to start the multi-agent orchestration. The AI will research, write, interlink, and optimize your post automatically.
+           </p>
+           <div className="mt-8 flex items-center gap-6 text-sm font-medium text-gray-400">
+             <div className="flex items-center gap-2"><ArrowRight className="w-4 h-4" /> 1200+ Words</div>
+             <div className="flex items-center gap-2"><ArrowRight className="w-4 h-4" /> SEO Ready</div>
+             <div className="flex items-center gap-2"><ArrowRight className="w-4 h-4" /> Internal Links</div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }

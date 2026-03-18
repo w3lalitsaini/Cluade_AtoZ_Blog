@@ -56,6 +56,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status") || "published";
     const author = searchParams.get("author");
     const search = searchParams.get("search");
+    const tag = searchParams.get("tag");
     const featured = searchParams.get("featured");
     const breaking = searchParams.get("breaking");
     const sort = searchParams.get("sort") || "-publishedAt";
@@ -66,7 +67,8 @@ export async function GET(req: NextRequest) {
     if (author) query.author = author;
     if (featured === "true") query.isFeatured = true;
     if (breaking === "true") query.isBreaking = true;
-    if (search) query.$text = { $search: search };
+    if (search) query.title = { $regex: search, $options: "i" };
+    if (tag) query.tags = tag;
 
     const skip = (page - 1) * limit;
     const [posts, total] = await Promise.all([

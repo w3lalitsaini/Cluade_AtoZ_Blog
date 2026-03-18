@@ -2,7 +2,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
 import NextImage from "next/image";
 import {
@@ -27,7 +28,7 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const { data: session } = useSession();
+  const { user } = useAuth();
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
@@ -63,11 +64,11 @@ export default function Navbar() {
             </span>
           </div>
           <div className="flex gap-4 items-center">
-            {session ? (
+            {user ? (
               <span className="text-ink-300">
                 Welcome,{" "}
                 <span className="text-brand-400">
-                  {session.user?.name?.split(" ")[0]}
+                  {user.name?.split(" ")[0]}
                 </span>
               </span>
             ) : (
@@ -146,7 +147,7 @@ export default function Navbar() {
               )}
             </button>
 
-            {session ? (
+            {user ? (
               <>
                 <Link
                   href="/bookmarks"
@@ -160,15 +161,15 @@ export default function Navbar() {
                     className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full hover:bg-ink-100 dark:hover:bg-ink-800 transition-colors"
                   >
                     <div className="relative w-7 h-7 rounded-full bg-brand-500 flex items-center justify-center text-white text-xs font-bold overflow-hidden">
-                      {session.user?.image ? (
+                      {user?.image ? (
                         <NextImage
-                          src={session.user.image}
-                          alt={session.user.name || ""}
+                          src={user.image}
+                          alt={user.name || ""}
                           fill
                           className="object-cover"
                         />
                       ) : (
-                        session.user?.name?.[0]?.toUpperCase() || "U"
+                        user?.name?.[0]?.toUpperCase() || "U"
                       )}
                     </div>
                     <ChevronDown className="w-3 h-3 text-ink-500" />
@@ -177,10 +178,10 @@ export default function Navbar() {
                     <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-ink-900 rounded-xl shadow-xl border border-ink-200 dark:border-ink-700 overflow-hidden z-50">
                       <div className="px-4 py-3 border-b border-ink-100 dark:border-ink-800">
                         <p className="font-semibold text-sm text-ink-900 dark:text-ink-100">
-                          {session.user?.name}
+                          {user?.name}
                         </p>
                         <p className="text-xs text-ink-500 truncate">
-                          {session.user?.email}
+                          {user?.email}
                         </p>
                       </div>
                       <div className="py-1">
@@ -190,7 +191,7 @@ export default function Navbar() {
                         >
                           <User className="w-4 h-4" /> My Dashboard
                         </Link>
-                        {(session.user as any)?.role === "admin" && (
+                        {user?.role === "admin" && (
                           <Link
                             href="/admin"
                             className="flex items-center gap-2 px-4 py-2.5 text-sm text-ink-700 dark:text-ink-300 hover:bg-ink-50 dark:hover:bg-ink-800"
@@ -199,7 +200,7 @@ export default function Navbar() {
                           </Link>
                         )}
                         {["admin", "editor", "author"].includes(
-                          (session.user as any)?.role,
+                          user?.role || "",
                         ) && (
                           <Link
                             href="/admin/posts/new"
@@ -304,7 +305,7 @@ export default function Navbar() {
                 </Link>
               ))}
             </nav>
-            {!session && (
+            {!user && (
               <div className="mt-6 flex gap-3">
                 <Link
                   href="/auth/signin"

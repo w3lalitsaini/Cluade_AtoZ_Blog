@@ -10,7 +10,7 @@ async function testRateLimiting() {
   console.log(`Simulating ${limit + 1} requests for IP: ${testIp}...`);
 
   for (let i = 1; i <= limit + 1; i++) {
-    const limited = isRateLimited(testIp, { limit });
+    const limited = isRateLimited(testIp, { limit, windowMs: 60000 });
     console.log(`Request ${i}: ${limited ? 'RATE LIMITED (Correct)' : 'Allowed'}`);
     
     if (i <= limit && limited) {

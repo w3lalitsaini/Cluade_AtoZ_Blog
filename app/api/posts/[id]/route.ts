@@ -120,6 +120,42 @@ export async function PUT(
   }
 }
 
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const session = await auth();
+    const role = (session?.user as any)?.role;
+    if (!session?.user || !["admin", "editor"].includes(role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    await connectDB();
+    const { status } = await req.json();
+
+    if (!["draft", "published", "pending", "archived"].includes(status)) {
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+    }
+
+    const post = await Post.findById(id);
+    if (!post) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
+    post.status = status;
+    if (status === "published" && !post.publishedAt) {
+      post.publishedAt = new Date();
+    }
+    await post.save();
+
+    return NextResponse.json({ success: true, post });
+  } catch (error) {
+    return NextResponse.json({ error: "Update failed" }, { status: 500 });
+  }
+}
+
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },

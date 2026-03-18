@@ -287,8 +287,8 @@ async function seed() {
 
     console.log("Seeding completed successfully!");
     process.exit(0);
-  } catch (error) {
-    console.error("Error seeding database:", error);
+  } catch (error: any) {
+    console.error("Error seeding database:", error?.message || error);
     process.exit(1);
   }
 }

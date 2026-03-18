@@ -1,0 +1,83 @@
+﻿
+> atozblog@1.0.0 build
+> next build
+
+   Γû▓ Next.js 15.5.12
+   - Environments: .env
+   - Experiments (use with caution):
+     ┬╖ serverActions
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully in 14.4s
+   Linting and checking validity of types ...
+
+./app/admin/media/page.tsx
+62:6  Warning: React Hook useEffect has a missing dependency: 'fetchMedia'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/admin/messages/page.tsx
+43:6  Warning: React Hook useEffect has a missing dependency: 'fetchMessages'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+node.exe : Failed to 
+compile.
+At C:\Program 
+Files\nodejs\npm.ps1:29 
+char:3
++   & $NODE_EXE $NPM_CLI_JS 
+$args
++   ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo          
+    : NotSpecified: (Faile  
+  d to compile.:String) [   
+ ], RemoteException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+
+./scripts/test-rate-limiter.
+ts:13:43
+Type error: Argument of 
+type '{ limit: number; }' 
+is not assignable to 
+parameter of type '{ limit: 
+number; windowMs: number; 
+}'.
+  Property 'windowMs' is 
+missing in type '{ limit: 
+number; }' but required in 
+type '{ limit: number; 
+windowMs: number; }'.
+
+[0m [90m 11 |[39m
+ [90m 12 |[39m   
+[36mfor[39m 
+([36mlet[39m i 
+[33m=[39m 
+[35m1[39m[33m;[39m i 
+[33m<=[39m limit 
+[33m+[39m 
+[35m1[39m[33m;[39m 
+i[33m++[39m) {
+[31m[1m>[22m[39m[90m 
+13 |[39m     
+[36mconst[39m limited 
+[33m=[39m isRateLimited(te
+stIp[33m,[39m { limit 
+})[33m;[39m
+ [90m    |[39m            
+                            
+   [31m[1m^[22m[39m
+ [90m 14 |[39m     console
+[33m.[39mlog([32m`Request
+ ${i}: ${limited ? 'RATE 
+LIMITED (Correct)' : 
+'Allowed'}`[39m)[33m;[39m
+ [90m 15 |[39m     
+ [90m 16 |[39m     
+[36mif[39m (i 
+[33m<=[39m limit 
+[33m&&[39m limited) {[0m
+Next.js build worker exited 
+with code: 1 and signal: 
+null

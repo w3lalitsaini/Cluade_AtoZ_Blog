@@ -1,0 +1,11 @@
+﻿--- STARTING AUTO-SAVE WORKFLOW TEST ---
+Keyword: "Future of Sustainable Energy 2026"
+[BlogAgent] Research started for: Future of Sustainable Energy 2026
+[BlogAgent] Content generation started for: Guide to Future of Sustainable Energy 2026
+[BlogAgent] SEO generation started for: Guide to Future of Sustainable Energy 2026
+
+--- WORKFLOW RESULT ---
+Topic: Guide to Future of Sustainable Energy 2026
+Post ID: null
+Cached: false
+Fallback Used: true

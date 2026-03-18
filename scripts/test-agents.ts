@@ -18,9 +18,9 @@ async function main() {
     console.log('\nContent Preview (First 200 chars):');
     console.log(result.content.substring(0, 200) + '...');
     console.log('--- Test Passed ---');
-  } catch (error) {
+  } catch (error: any) {
     console.error('--- Test Failed ---');
-    console.error(error);
+    console.error(error?.message || error);
     process.exit(1);
   }
 }

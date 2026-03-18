@@ -48,8 +48,8 @@ async function publishPost() {
     );
 
     process.exit(0);
-  } catch (error) {
-    console.error("Error publishing post:", error);
+  } catch (error: any) {
+    console.error("Error publishing post:", error?.message || error);
     process.exit(1);
   }
 }

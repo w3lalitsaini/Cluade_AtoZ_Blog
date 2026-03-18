@@ -11,6 +11,7 @@ import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import { Toaster } from "react-hot-toast";
 import { auth } from "@/lib/auth";
 import { SessionProvider } from "next-auth/react";
+import { AuthProvider } from "@/contexts/AuthContext";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { StickyBottomAd } from "@/components/ads/AdUnit";
 
@@ -74,26 +75,28 @@ export default async function RootLayout({
         className={`${inter.variable} ${playfair.variable} ${sourceSerif.variable} ${dmSans.variable} ${jetbrainsMono.variable} font-sans antialiased text-ink-900 dark:text-ink-50 bg-white dark:bg-black`}
       >
         <SessionProvider session={session}>
-          <GoogleAnalytics />
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange={false}
-          >
-            {children}
-            <Toaster
-              position="bottom-right"
-              toastOptions={{
-                style: {
-                  background: "#1c1917",
-                  color: "#fef3c7",
-                  borderRadius: "8px",
-                  border: "1px solid #f97316",
-                },
-              }}
-            />
-          </ThemeProvider>
+          <AuthProvider>
+            <GoogleAnalytics />
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange={false}
+            >
+              {children}
+              <Toaster
+                position="bottom-right"
+                toastOptions={{
+                  style: {
+                    background: "#1c1917",
+                    color: "#fef3c7",
+                    borderRadius: "8px",
+                    border: "1px solid #f97316",
+                  },
+                }}
+              />
+            </ThemeProvider>
+          </AuthProvider>
         </SessionProvider>
         <StickyBottomAd />
       </body>

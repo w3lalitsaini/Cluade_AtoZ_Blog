@@ -12,7 +12,7 @@ async function main() {
       messages: [{ role: 'user', content: 'Say hello' }],
     });
     console.log('OpenAI Response:', response.choices[0].message.content);
-  } catch (error) {
+  } catch (error: any) {
     console.error('OpenAI Error:', error.message);
     if (error.response) {
       console.error('Status:', error.response.status);

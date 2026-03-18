@@ -4,6 +4,7 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, Loader2, AlertTriangle, CheckCircle2, RefreshCw } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 type AlertType = "error" | "unverified" | null;
 
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
 
+  const { refreshUser } = useAuth();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAlert(null);
@@ -31,6 +33,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (res?.ok) {
+      await refreshUser();
       router.refresh();
       router.push("/");
       return;

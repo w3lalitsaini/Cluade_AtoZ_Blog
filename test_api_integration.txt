@@ -1,0 +1,32 @@
+﻿--- STARTING AGENT API INTEGRATION TEST ---
+URL: http://localhost:3000/api/agent-blog
+Keyword: "Revolutionary Advancements in Healthcare AI 2026"
+Mode: Generation + Save (save: true)
+
+--- API RESPONSE ---
+Status Code: 200
+Response Body: {
+  "success": true,
+  "data": {
+    "topic": "Guide to Revolutionary Advancements in Healthcare AI 2026",
+    "keywords": [
+      "Revolutionary Advancements in Healthcare AI 2026",
+      "how to",
+      "tips"
+    ],
+    "search_intent": "informational",
+    "title": "Guide to Revolutionary Advancements in Healthcare AI 2026",
+    "meta_description": "Read our latest post about Guide to Revolutionary Advancements in Healthcare AI 2026.",
+    "slug": "guide-to-revolutionary-advancements-in-healthcare-ai-2026",
+    "tags": [
+      "ai",
+      "blog"
+    ],
+    "content": "<h1>Guide to Revolutionary Advancements in Healthcare AI 2026</h1><p>Detailed guide coming soon. Currently generation is unavailable due to high demand.</p>",
+    "fallback_used": true,
+    "cached": false
+  },
+  "saved": true
+}
+
+--- TEST PASSED: API INTEGRATION VERIFIED ---
