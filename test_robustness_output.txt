@@ -1,0 +1,36 @@
+﻿--- STARTING FULL SYSTEM TEST ---
+Input Keyword: "AI tools for students"
+
+[Step 1] Executing Blog Agent Workflow...
+[BlogAgent] Research started for: AI tools for students
+[BlogAgent] Content generation started for: Guide to AI tools for students
+[BlogAgent] SEO generation started for: Guide to AI tools for students
+Research OK
+Content OK
+SEO OK
+
+[Step 2] Validating Response Structure...
+
+--- FINAL RESPONSE DATA ---
+{
+  "topic": "Guide to AI tools for students",
+  "keywords": [
+    "AI tools for students",
+    "how to",
+    "tips"
+  ],
+  "search_intent": "informational",
+  "title": "Guide to AI tools for students",
+  "meta_description": "Read our latest post about Guide to AI tools for students.",
+  "slug": "guide-to-ai-tools-for-students",
+  "tags": [
+    "ai",
+    "blog"
+  ],
+  "content": "<h1>Guide to AI tools for students</h1><p>Detailed guide coming soon. Currently generation is unavailable due to high demand.</p>",
+  "fallback_used": true
+}
+
+FALLBACK MODE
+
+AGENT SYSTEM WORKING SUCCESSFULLY

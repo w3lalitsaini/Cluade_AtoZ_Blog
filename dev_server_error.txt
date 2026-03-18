@@ -1,0 +1,27 @@
+﻿
+> atozblog@1.0.0 dev
+> next dev
+
+node.exe :  ΓÜá Port 3000 is in use 
+by process 19444, using available 
+port 3001 instead.
+At C:\Program Files\nodejs\npm.ps1:29 
+char:3
++   & $NODE_EXE $NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpec 
+   ified: ( ΓÜá Port 3000 ...t 3001   
+  instead.:String) [], RemoteExcept   
+ ion
+    + FullyQualifiedErrorId : NativeC 
+   ommandError
+ 
+   Γû▓ Next.js 15.5.12
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.1.71:3001
+   - Environments: .env
+   - Experiments (use with caution):
+     ┬╖ serverActions
+
+ Γ£ô Starting...
+ Γ£ô Ready in 3.6s

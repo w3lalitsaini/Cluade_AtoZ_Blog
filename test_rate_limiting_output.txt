@@ -1,0 +1,10 @@
+﻿--- STARTING RATE LIMITING TEST ---
+Simulating 6 requests for IP: 192.168.1.1...
+Request 1: Allowed
+Request 2: Allowed
+Request 3: Allowed
+Request 4: Allowed
+Request 5: Allowed
+Request 6: RATE LIMITED (Correct)
+
+RATE LIMITING VERIFIED SUCCESSFULLY

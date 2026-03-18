@@ -1,0 +1,7 @@
+﻿--- STARTING FULL SYSTEM TEST ---
+Input Keyword: "AI tools for students"
+
+[Step 1] Executing Blog Agent Workflow...
+[BlogAgent] Research started for: AI tools for students
+
+FIX SUGGESTION: Your OpenAI API quota is exceeded. Please check your billing or API limits at platform.openai.com.

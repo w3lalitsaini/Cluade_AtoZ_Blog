@@ -1,0 +1,81 @@
+﻿--- STARTING FULL SYSTEM TEST ---
+Input Keyword: "Future of Sustainable Mars Colonies"
+
+[Step 1] Executing Blog Agent Workflow...
+[BlogAgent] Checking cache for: Future of Sustainable Mars Colonies
+[BlogAgent] Cache miss.
+[BlogAgent] Research started for: Future of Sustainable Mars Colonies
+node.exe : [OpenAI] Quota exceeded 
+(429). Attempt 1/3
+At C:\Program Files\nodejs\npx.ps1:29 
+char:3
++   & $NODE_EXE $NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecif 
+   ied: ([OpenAI] Quota ...9). Attempt  
+   1/3:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCom 
+   mandError
+ 
+[OpenAI] Quota exceeded (429). Attempt 
+2/3
+[OpenAI] Quota exceeded (429). Attempt 
+3/3
+[researchAgent] Quota exceeded. Using 
+fallback values.
+[BlogAgent] Content generation started for: Guide to Future of Sustainable Mars Colonies
+[OpenAI] Quota exceeded (429). Attempt 
+1/3
+[OpenAI] Quota exceeded (429). Attempt 
+2/3
+[OpenAI] Quota exceeded (429). Attempt 
+3/3
+[contentAgent] Quota exceeded. Using 
+fallback content.
+[BlogAgent] SEO generation started for: Guide to Future of Sustainable Mars Colonies
+[OpenAI] Quota exceeded (429). Attempt 
+1/3
+[OpenAI] Quota exceeded (429). Attempt 
+2/3
+[OpenAI] Quota exceeded (429). Attempt 
+3/3
+[seoAgent] Quota exceeded. Using 
+fallback SEO.
+Research OK
+Content OK
+SEO OK
+
+[Step 2] Validating Response Structure...
+
+--- FIRST RUN COMPLETE ---
+Cache Status: MISS
+
+[Step 3] Saving result to database for caching check...
+
+[Step 4] Running workflow again (Expected CACHE HIT)...
+[BlogAgent] Checking cache for: Future of Sustainable Mars Colonies
+[BlogAgent] Cache hit!
+
+--- SECOND RUN DATA ---
+{
+  "topic": "Guide to Future of Sustainable Mars Colonies",
+  "keywords": [
+    "ai",
+    "blog"
+  ],
+  "search_intent": "informational",
+  "title": "Guide to Future of Sustainable Mars Colonies",
+  "meta_description": "Read our latest post about Guide to Future of Sustainable Mars Colonies.",
+  "slug": "guide-to-future-of-sustainable-mars-colonies",
+  "tags": [
+    "ai",
+    "blog"
+  ],
+  "content": "<h1>Guide to Future of Sustainable Mars Colonies</h1><p>Detailed guide coming soon. Currently generation is unavailable due to high demand.</p>",
+  "fallback_used": false,
+  "cached": true
+}
+
+CACHE HIT VERIFIED
+
+AGENT SYSTEM WORKING SUCCESSFULLY

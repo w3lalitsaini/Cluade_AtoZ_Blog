@@ -1,0 +1,47 @@
+﻿--- STARTING FULL SYSTEM TEST ---
+Input Keyword: "Revolutionary Quantum Computing in 2026"
+
+[Step 1] Executing Blog Agent Workflow...
+[BlogAgent] Checking cache for: Revolutionary Quantum Computing in 2026
+[BlogAgent] Cache miss.
+[BlogAgent] Research started for: Revolutionary Quantum Computing in 2026
+[BlogAgent] Content generation started for: Guide to Revolutionary Quantum Computing in 2026
+[BlogAgent] SEO generation started for: Guide to Revolutionary Quantum Computing in 2026
+Research OK
+Content OK
+SEO OK
+
+[Step 2] Validating Response Structure...
+
+--- FIRST RUN COMPLETE ---
+Cache Status: MISS
+
+[Step 3] Saving result to database for caching check...
+
+[Step 4] Running workflow again (Expected CACHE HIT)...
+[BlogAgent] Checking cache for: Revolutionary Quantum Computing in 2026
+[BlogAgent] Cache hit!
+
+--- SECOND RUN DATA ---
+{
+  "topic": "Guide to Revolutionary Quantum Computing in 2026",
+  "keywords": [
+    "ai",
+    "blog"
+  ],
+  "search_intent": "informational",
+  "title": "Guide to Revolutionary Quantum Computing in 2026",
+  "meta_description": "Read our latest post about Guide to Revolutionary Quantum Computing in 2026.",
+  "slug": "guide-to-revolutionary-quantum-computing-in-2026",
+  "tags": [
+    "ai",
+    "blog"
+  ],
+  "content": "<h1>Guide to Revolutionary Quantum Computing in 2026</h1><p>Detailed guide coming soon. Currently generation is unavailable due to high demand.</p>",
+  "fallback_used": false,
+  "cached": true
+}
+
+CACHE HIT VERIFIED
+
+AGENT SYSTEM WORKING SUCCESSFULLY

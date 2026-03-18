@@ -1,0 +1,3 @@
+﻿--- STARTING FULL SYSTEM TEST ---
+Input Keyword: "AI tools for students"
+

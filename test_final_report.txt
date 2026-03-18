@@ -1,0 +1,40 @@
+﻿--- STARTING FULL SYSTEM TEST ---
+Input Keyword: "AI tools for students"
+
+[Step 1] Executing Blog Agent Workflow...
+[BlogAgent] Research started for: AI tools for students
+node.exe : [BlogAgent] Error in 
+workflow: researchAgent: OpenAI 
+API call failed ΓÇö 429 You 
+exceeded your current quota, 
+please check your plan and 
+billing details. For more 
+information on this error, read 
+the docs: https://platform.openai
+.com/docs/guides/error-codes/api-
+errors.
+At C:\Program 
+Files\nodejs\npx.ps1:29 char:3
++   & $NODE_EXE $NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : No 
+   tSpecified: ([BlogAgent] Err  
+  ...des/api-errors.:String) [   
+ ], RemoteException
+    + FullyQualifiedErrorId : Na 
+   tiveCommandError
+ 
+
+--- SYSTEM ERROR ---
+Exact Error: runBlogAgent 
+failed: researchAgent: OpenAI 
+API call failed ΓÇö 429 You 
+exceeded your current quota, 
+please check your plan and 
+billing details. For more 
+information on this error, read 
+the docs: https://platform.openai
+.com/docs/guides/error-codes/api-
+errors.
+
+FIX SUGGESTION: Your OpenAI API quota is exceeded. Please check your billing or API limits at platform.openai.com.

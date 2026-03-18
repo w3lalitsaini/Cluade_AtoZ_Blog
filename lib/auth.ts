@@ -74,4 +74,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/auth/login",
     error: "/auth/error",
   },
+  trustHost: true,
+  debug: true,
 });
