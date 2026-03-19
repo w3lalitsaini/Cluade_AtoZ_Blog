@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Post from "@/models/Post";
+import Category from "@/models/Category";
+import Tag from "@/models/Tag";
 import { generateSlug, calculateReadingTime } from "@/lib/utils";
 import { z } from "zod";
+import mongoose from "mongoose";
 
 const PostSchema = z.object({
   title: z.string().min(5).max(300),
@@ -118,9 +121,44 @@ export async function POST(req: NextRequest) {
     const existing = await Post.findOne({ slug });
     const finalSlug = existing ? `${slug}-${Date.now()}` : slug;
 
+    // Resolve Category
+    let categoryId = validated.category;
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+      let cat = await Category.findOne({ 
+        $or: [
+          { name: new RegExp(`^${validated.category}$`, 'i') }, 
+          { slug: generateSlug(validated.category) }
+        ] 
+      });
+      if (!cat) {
+        cat = await Category.create({ 
+          name: validated.category, 
+          slug: generateSlug(validated.category) 
+        });
+      }
+      categoryId = cat._id.toString();
+    }
+
+    // Resolve Tags
+    const tagIds = [];
+    for (const tagName of (validated.tags || [])) {
+      if (mongoose.Types.ObjectId.isValid(tagName)) {
+        tagIds.push(tagName);
+      } else {
+        const tagSlug = generateSlug(tagName);
+        let tag = await Tag.findOne({ slug: tagSlug });
+        if (!tag) {
+          tag = await Tag.create({ name: tagName, slug: tagSlug });
+        }
+        tagIds.push(tag._id.toString());
+      }
+    }
+
     const userId = (session.user as { id?: string })?.id;
     const post = await Post.create({
       ...validated,
+      category: categoryId,
+      tags: tagIds,
       slug: finalSlug,
       excerpt,
       readingTime,
