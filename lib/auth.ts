@@ -1,6 +1,5 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 import User from "@/models/User";
 import connectDB from "@/lib/db";
 
@@ -23,7 +22,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           if (!user || !user.password) return null;
 
-          const isValid = await bcrypt.compare(
+          const { comparePassword } = require("@/lib/bcrypt");
+          const isValid = await comparePassword(
             credentials.password as string,
             user.password,
           );

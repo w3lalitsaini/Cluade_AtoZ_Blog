@@ -17,19 +17,21 @@ const Log = mongoose.models.Log || mongoose.model('Log', LogSchema);
 async function findError() {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    const errorLog = await Log.findOne({ 
-      level: 'error',
-      source: { $in: ['BlogAgent', 'AutoBlogEngine', 'ImageService'] },
-      timestamp: { $gte: new Date(Date.now() - 60 * 60 * 1000) } 
-    }).sort({ timestamp: -1 });
+    const logs = await Log.find({ 
+      source: { $in: ['BlogAgent', 'AutoBlogEngine', 'ImageService', 'AgentBlogAPI', 'AIService'] },
+      timestamp: { $gte: new Date(Date.now() - 10 * 60 * 1000) } 
+    }).sort({ timestamp: -1 }).limit(50);
 
-    if (errorLog) {
-      console.log('--- ERROR FOUND ---');
-      console.log(`Source: ${errorLog.source}`);
-      console.log(`Message: ${errorLog.message}`);
-      console.log(`Metadata: ${JSON.stringify(errorLog.metadata, null, 2)}`);
+    if (logs && logs.length > 0) {
+      console.log(`--- FOUND ${logs.length} RECENT LOGS ---`);
+      logs.forEach(log => {
+        console.log(`[${log.timestamp.toISOString()}] [${log.level}] [${log.source}] ${log.message}`);
+        if (log.metadata && Object.keys(log.metadata).length > 0) {
+          console.log(`   Metadata: ${JSON.stringify(log.metadata)}`);
+        }
+      });
     } else {
-      console.log('No error logs found in the last 15 minutes.');
+      console.log('No recent logs found in the last 10 minutes.');
     }
     await mongoose.disconnect();
   } catch (err) {

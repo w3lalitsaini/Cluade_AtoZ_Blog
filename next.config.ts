@@ -14,9 +14,11 @@ const nextConfig: NextConfig = {
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
+      config.externals = [...(config.externals || []), "bcryptjs"];
       config.resolve.fallback = {
         ...config.resolve.fallback,
         crypto: false,
+        bcryptjs: false,
       };
     }
     return config;

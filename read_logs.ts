@@ -24,8 +24,8 @@ async function readLogs() {
     console.log('Connected to MongoDB');
 
     const logs = await Log.find({
-      timestamp: { $gte: new Date(Date.now() - 120 * 60 * 1000) } 
-    }).sort({ timestamp: -1 }).limit(200);
+      timestamp: { $gte: new Date(Date.now() - 30 * 60 * 1000) } 
+    }).sort({ timestamp: -1 }).limit(100);
 
     console.log(JSON.stringify(logs, null, 2));
     await mongoose.disconnect();
