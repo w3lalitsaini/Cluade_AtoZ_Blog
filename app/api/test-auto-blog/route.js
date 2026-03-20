@@ -13,7 +13,7 @@ export async function GET(req) {
   const startTime = Date.now();
   const { searchParams } = new URL(req.url);
   const isCronTest = searchParams.get('cron') === 'true';
-  const testKeyword = "test automation blog";
+  const testKeyword = searchParams.get('keyword') || "test automation blog " + Date.now();
 
   await logInfo('TestAutoBlog', `Starting validation cycle (Cron Mode: ${isCronTest})...`);
 
